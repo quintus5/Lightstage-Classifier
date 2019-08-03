@@ -2,7 +2,7 @@
 % clc;clear;close all;
 bit16 = 65535;
 bit8 = 255;
-myFolder = 'C:\Users\user\Pictures\basler\real\ball11';
+myFolder = 'C:\Users\user\Pictures\basler\real\ball13';
 % myFolder = 'C:\Users\user\Pictures\basler\fake\orange5';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
@@ -16,28 +16,28 @@ a = 1;
 for k = 1:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.bl{a} = double(imread(fullFileName))/bit16;
+  im.bl{a} = double(imread(fullFileName))/bit8;
   a = a+1;
 end
 a = 1;
 for k = 2:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.tl{a} = double(imread(fullFileName))/bit16;
+  im.tl{a} = double(imread(fullFileName))/bit8;
   a = a+ 1;
 end
 a = 1;
 for k = 3:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.tr{a} = double(imread(fullFileName))/bit16;
+  im.tr{a} = double(imread(fullFileName))/bit8;
   a = a+ 1;
 end
 a = 1;
 for k = 4:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.br{a} = double(imread(fullFileName))/bit16;
+  im.br{a} = double(imread(fullFileName))/bit8;
   a = a+ 1;
 end
 a = 1;
@@ -86,55 +86,56 @@ for i = 1:length(redim.bl)
 end
 for j = 1:12
     noisefreeim{j} = noisefreeim{j}/i;
-%     fprintf('estimate noise pic%d: %.7f \n',j,NoiseLevel(noisefreeim{j}));
+    fprintf('estimate noise pic%d: %.7f \n',j,NoiseLevel(noisefreeim{j}));
 end
 
 %% test snr of single illum
-myFolder = 'C:\Users\user\Pictures\basler\real\ball11';
+myFolder = 'C:\Users\user\Pictures\basler\real\ball27';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 for i = 1:12
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  sim{i} = double(imread(fullFileName))/bit16;
+  sim{i} = double(imread(fullFileName).*1)/bit8;
 end
 
 for i = 1:3
     figure(i);
     for j = 1:4
-        subplot(2,2,j);
-        imshowpair(noisefreeim{(i-1)*4+j},sim{(i-1)*4+j},'montage');
-        [multpsnr,multsnr] = psnr(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-%         meansq = immse(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-%         name = strcat('MSE =',num2str(meansq));
-        name = strcat('peak SNR :',num2str(multpsnr),'. SNR : ',num2str(multsnr));
+        subplot(2,4,j*2-1);
+%         imshowpair(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j},'montage');
+        imagesc(noisefreeim{(i-1)*4+j}-sim{(i-1)*4+j});
+        [ipsnr,isnr,imse] = snrcalc(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j});
+        name = ['psnr: ',num2str(ipsnr),' SNR: ',num2str(isnr)];
         title(name);
         axis off;
         colorbar;
+        colormap bone;
+        caxis([-0.5,0.5]);
     end
     sgtitle('single illumination source');
 end
 
 %% test snr of multiplex image
-myFolder = 'C:\Users\user\Pictures\basler\real\ball12';
+myFolder = 'C:\Users\user\Pictures\basler\real\ball19';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 for i = 1:4
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mr{i} = double(imread(fullFileName))/bit16;
+  mr{i} = double(imread(fullFileName).*1)/bit8;
   mrmat(i,:) = reshape(mr{i},1,size(mr{i},1)*size(mr{i},2));
 end
 for i = 5:8
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mg{i-4} = double(imread(fullFileName))/bit16;
+  mg{i-4} = double(imread(fullFileName).*1)/bit8;
   mgmat(i-4,:) = reshape(mg{i-4},1,size(mg{i-4},1)*size(mg{i-4},2));
 end
 for i = 9:12
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mb{i-8} = double(imread(fullFileName))/bit16;
+  mb{i-8} = double(imread(fullFileName).*1)/bit8;
   mbmat(i-8,:) = reshape(mb{i-8},1,size(mb{i-8},1)*size(mb{i-8},2));
 end
 % 
@@ -158,30 +159,39 @@ end
 for i = 1:3
     figure(i+3);
     for j = 1:4
-        subplot(2,2,j);
-        imshowpair(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j},'diff');
-        [multpsnr,multsnr] = psnr(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-%         meansq = immse(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-%         name = strcat('MSE =',num2str(meansq));
-        name = strcat('peak SNR is ',num2str(multpsnr),'. SNR is ',num2str(multsnr));
+        subplot(2,4,j*2);
+%         imshowpair(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j},'montage');
+         imagesc(noisefreeim{(i-1)*4+j}-dem{(i-1)*4+j});
+        [ipsnr,isnr,imse] = snrcalc(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j});
+        name = ['psnr: ',num2str(ipsnr),' SNR: ',num2str(isnr)];
         title(name);
         axis off;
+        colorbar;
+        colormap bone;
+        caxis([-0.5,0.5]);
     end
     sgtitle('demultiplexed at 500ms,f/11');
 end
 
 %% check multiplexed image form sillum psnr 
 
-% rednf = (noisefreeim{1}+noisefreeim{2}+noisefreeim{3}+noisefreeim{4})/2;
-% reds = (sim{1}+sim{2}+sim{3}+sim{4})/2;
-% figure;
-% subplot(1,2,1);
+rednf = (noisefreeim{1}+noisefreeim{2}+noisefreeim{3}+noisefreeim{4})/4;
+reds = (sim{1}+sim{2}+sim{3}+sim{4})/4;
+figure;
+subplot(1,2,1);
 % imshowpair(reds,rednf,'montage');
-% name = strcat('MSE :',num2str(immse(reds,rednf)));
-% title(name);
-% subplot(1,2,2);
+imagesc(reds-rednf);
+[ipsnr,isnr,imse] = snrcalc(reds,rednf);
+name = ['snr: ',num2str(isnr)];
+title(name);
+colorbar;
+subplot(1,2,2);
 % imshowpair(mr{1},rednf,'montage');
-% name = strcat('MSE :',num2str(immse(mr{1},rednf)));
-% title(name);
-% sgtitle('multiplex single illumination images vs multiplexed illumination image')
-
+imagesc(mr{1}-rednf);
+[ipsnr,isnr,imse] = snrcalc(rednf,mr{1});
+name = ['snr: ',num2str(isnr)];
+title(name);
+sgtitle('multiplex single illumination images vs multiplexed illumination image')
+colorbar;
+colormap bone;
+caxis([-1,1]);

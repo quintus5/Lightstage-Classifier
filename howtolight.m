@@ -4,11 +4,15 @@ function sequence = howtolight(no_led,color,varargin)
 %   1) no_led: *int 
 %                   total number of light direction used
 %   2) color : *char array 
-%                   color of light
-%
+%                   color of light: 
+%                   red green blue yellow lightblue purple white infrared
+%                    r    g    b     y         l      p      w       i
+%                                 
 %    BL    TL    TR    BR
 %   rgbir bgrir rgbir bgrir
-%
+
+% need to change pattern, its M = (1-H(2:end,2:end))/2
+% number of light source is 1,3,7,15
 redtable = [8,2,8,2];
 bluetable = [2,8,2,8];
 greentable = [4,4,4,4];
@@ -21,7 +25,7 @@ alltable = greentable+bluetable+redtable+NIRtable;
 
 %check error
 if mod(no_led,1) || no_led > 4 || no_led <= 0
-    error('please respecify number of Light source direction'); 
+    error('please specify number of Light source direction'); 
 end
 
 if ~ischar(color) 
@@ -41,9 +45,11 @@ if nargin > 2
             end 
         elseif strcmp(varargin{i},'Multiplexingstyle') %is pattern style is given
             if strcmp(varargin{i+1},'hadamard')
-                mulmat = hadamard(no_led)+(hadamard(no_led)<0);
+%                 mulmat = hadamard(no_led)+(hadamard(no_led)<0);
+                mulmat = (1-hadamard(no_led))/2;
+%                 mulmat = (1-mulmat(2:end,2:end))/2;
             elseif strcmp(varargin{i+1},'three')
-                mulmat = tril(ones(4));
+                mulmat = ones(4)-eye(4);
             elseif strcmp(varargin{i+1},'all')
                 mulmat = ones(4);
             else
@@ -55,7 +61,7 @@ if nargin > 2
     end
     for o = 1:length(pattern)
         if pattern(o) == 's'
-            code(o*4-3:o*4,:) = eye(no_led);
+            code(o*4-3:o*4,:) = eye(no_led)-diag([1,0,0,0]);
         elseif pattern(o) == 'm'
             code(o*4-3:o*4,:) = mulmat;
         end

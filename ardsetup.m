@@ -12,8 +12,8 @@ ard = arduino('COM3', 'Uno', 'Libraries', 'ShiftRegister');
   |_|_|_|_|_|_|
 %}
 % set it on arduino
-latch = 'D10';
-clk = 'D11';
-data = 'D9';
+latch = 'A1';
+clk = 'A0';
+data = 'A2';
 reset = 'D12';
 reg = shiftRegister(ard,'74HC595',data,clk,latch,reset);

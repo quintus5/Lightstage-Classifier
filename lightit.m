@@ -1,16 +1,15 @@
 % sequenceTable = howtolight(4,'w','LightPattern','m','Multiplexingstyle','all');
-sequenceTable = howtolight(4,'lpw','LightPattern','sss','Multiplexingstyle','hadamard');
+sequenceTable = howtolight(4,'n','LightPattern','m','Multiplexingstyle','all');
 images = 1;
-writeDigitalPin(ard,'D7',1);
-writeDigitalPin(ard,'D7',0);
+% writeDigitalPin(ard,'D7',1);
+% writeDigitalPin(ard,'D7',0);
 tic;
 for k = 1:images
     for count = 1:size(sequenceTable,1)
         write(reg,sequenceTable(count,:),'uint16');
-        pause(0.4);
         writeDigitalPin(ard,'D7',1);
-        pause(0.001);
         writeDigitalPin(ard,'D7',0);
+        pause(0.5);
     end
 end
 toc;
@@ -40,3 +39,30 @@ toc;
 % set 11: 12db gain 4xpost          - 12 image rgb et: 0.075 ball25
 % set 12: 12db gain 4xpost mult     - 12 image rgb et: 0.075 ball26
 % set 13: 12db gain 0.75gam         - 12 image rgb et: 0.125 ball27
+
+% hole plate test f/4
+% set 1: 0db 96ms rgblpyi s 1400im
+% set 2: 0db 72ms rgblpyi mh 28im
+% set 3: 0db 72ms rgblpyi mt 28im
+% set 4: 0db 48ms rgblpyi mh 28im
+% set 5: 0db 48ms rgblpyi mt 28im
+% set 6: 0db 48ms rgblpyi s 28im
+% set 7: 6db 48ms rgblpyi s 28im
+% set 8: 6db 36ms rgblpyi mh 28im
+% set 9: 6db 36ms rgblpyi mt 28im
+% set a: 6db 24ms rgblpyi mh 28im
+% set b: 6db 24ms rgblpyi mt 28im
+% set c: 12db 24ms rgbpyli s 28im
+
+% bump plate test f/4
+% set 1: 0db 96ms rgblpyi s 28im- 
+% set 2: 0db 72ms rgblpyi mh 28im-
+% set 3: 0db 72ms rgblpyi mt 28im-
+% set 4: 0db 48ms rgblpyi mh 28im-
+% set 5: 0db 48ms rgblpyi mt 28im-
+% set 6: 0db 48ms rgblpyi s 28im-
+% set 7: 6db 48ms rgblpyi s 28im
+% set 8: 6db 36ms rgblpyi mh 28im
+% set 9: 6db 36ms rgblpyi mt 28im
+% set a: 6db 24ms rgblpyi mh 28im
+% set b: 6db 24ms rgblpyi mt 28im

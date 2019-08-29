@@ -1,15 +1,15 @@
-% sequenceTable = howtolight(4,'w','LightPattern','m','Multiplexingstyle','all');
-sequenceTable = howtolight(4,'n','LightPattern','m','Multiplexingstyle','all');
+% sequenceTable = howtolight(8,'i','LightPattern','m','Multiplexingstyle','all');
+sequenceTable = howtolight(8,'ri','LightPattern','mm','Multiplexingstyle','step');
 images = 1;
 % writeDigitalPin(ard,'D7',1);
 % writeDigitalPin(ard,'D7',0);
 tic;
 for k = 1:images
     for count = 1:size(sequenceTable,1)
-        write(reg,sequenceTable(count,:),'uint16');
-        writeDigitalPin(ard,'D7',1);
-        writeDigitalPin(ard,'D7',0);
-        pause(0.5);
+        write(reg,sequenceTable(count,:),'uint32');
+        writeDigitalPin(ard,'D8',1);
+        writeDigitalPin(ard,'D8',0);
+        pause(0.03);
     end
 end
 toc;

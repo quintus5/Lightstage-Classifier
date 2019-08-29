@@ -1,47 +1,41 @@
 % test snr of single source illum and multiplex
 % clc;clear;close all;
-bit16 = 65535;
-bit8 = 255;
-myFolder = 'C:\Users\user\Pictures\basler\real\ball13';
-% myFolder = 'C:\Users\user\Pictures\basler\fake\orange5';
+bit = 255;
+% myFolder = 'C:\Users\user\Pictures\basler\classtest\plate\hole0db96ms_s';
+myFolder = 'C:\Users\user\Pictures\basler\fake\orange5';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
-% for k = 1:length(jpegFiles)
-%   baseFileName = jpegFiles(k).name;
-%   fullFileName = fullfile(myFolder, baseFileName);
-%   oim(:,:,k) = double(imread(fullFileName))/bit16;
-% end
 
 a = 1;
 for k = 1:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.bl{a} = double(imread(fullFileName))/bit8;
+  im.bl{a} = double(imread(fullFileName))/bit;
   a = a+1;
 end
 a = 1;
 for k = 2:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.tl{a} = double(imread(fullFileName))/bit8;
+  im.tl{a} = double(imread(fullFileName))/bit;
   a = a+ 1;
 end
 a = 1;
 for k = 3:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.tr{a} = double(imread(fullFileName))/bit8;
+  im.tr{a} = double(imread(fullFileName))/bit;
   a = a+ 1;
 end
 a = 1;
 for k = 4:4:length(jpegFiles)
   baseFileName = jpegFiles(k).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  im.br{a} = double(imread(fullFileName))/bit8;
+  im.br{a} = double(imread(fullFileName))/bit;
   a = a+ 1;
 end
 a = 1;
-for j = 1:3:length(im.bl)
+for j = 1:7:length(im.bl)
    redim.bl{a} = im.bl{j};
    redim.br{a} = im.br{j};
    redim.tr{a} = im.tr{j};
@@ -49,7 +43,7 @@ for j = 1:3:length(im.bl)
    a = a + 1;
 end
 a = 1;
-for j = 2:3:length(im.bl)
+for j = 2:7:length(im.bl)
    grnim.bl{a} = im.bl{j}; 
    grnim.br{a} = im.br{j};
    grnim.tr{a} = im.tr{j};
@@ -57,7 +51,7 @@ for j = 2:3:length(im.bl)
    a = a + 1;
 end
 a = 1;
-for j = 3:3:length(im.bl)
+for j = 3:7:length(im.bl)
    bluim.bl{a} = im.bl{j};
    bluim.br{a} = im.br{j};
    bluim.tr{a} = im.tr{j};
@@ -90,66 +84,71 @@ for j = 1:12
 end
 
 %% test snr of single illum
-myFolder = 'C:\Users\user\Pictures\basler\real\ball27';
+myFolder = 'C:\Users\user\Pictures\basler\classtest\plate\hole12db24ms_s';
+% myFolder = 'C:\Users\user\Pictures\basler\fake\orange7';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 for i = 1:12
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  sim{i} = double(imread(fullFileName).*1)/bit8;
+  sim{i} = double(imread(fullFileName).*1.1)/bit;
 end
 
 for i = 1:3
     figure(i);
     for j = 1:4
         subplot(2,4,j*2-1);
+%         imshow(sim{(i-1)*4+j});
 %         imshowpair(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j},'montage');
-        imagesc(noisefreeim{(i-1)*4+j}-sim{(i-1)*4+j});
-        [ipsnr,isnr,imse] = snrcalc(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-        name = ['psnr: ',num2str(ipsnr),' SNR: ',num2str(isnr)];
+        imagesc(log(abs(noisefreeim{(i-1)*4+j}-sim{(i-1)*4+j})));
+        [ipsnr,isnr,imse] = snrcalc(sim{(i-1)*4+j},noisefreeim{(i-1)*4+j},0);
+        name = ['psnr: ',num2str(ipsnr)];
         title(name);
         axis off;
         colorbar;
         colormap bone;
-        caxis([-0.5,0.5]);
+        caxis([-20,0]);
     end
-    sgtitle('single illumination source');
+%     sgtitle('single illumination at 6db gain 48ms');
+%     saveas(gcf,['sim',chan(i,:),num2str(i),'.png']);
 end
 
 %% test snr of multiplex image
-myFolder = 'C:\Users\user\Pictures\basler\real\ball19';
+myFolder = 'C:\Users\user\Pictures\basler\classtest\plate\hole0db48ms_mt';
+% myFolder = 'C:\Users\user\Pictures\basler\real\ball19';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 for i = 1:4
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mr{i} = double(imread(fullFileName).*1)/bit8;
+  mr{i} = double(imread(fullFileName))/bit; 
+  mr{i} = mr{i}*2;
   mrmat(i,:) = reshape(mr{i},1,size(mr{i},1)*size(mr{i},2));
 end
 for i = 5:8
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mg{i-4} = double(imread(fullFileName).*1)/bit8;
+  mg{i-4} = double(imread(fullFileName))/bit;
+  mg{i-4} = mg{i-4}*2;
   mgmat(i-4,:) = reshape(mg{i-4},1,size(mg{i-4},1)*size(mg{i-4},2));
 end
 for i = 9:12
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
-  mb{i-8} = double(imread(fullFileName).*1)/bit8;
+  mb{i-8} = double(imread(fullFileName))/bit;
+  mb{i-8} = mb{i-8}*2;
   mbmat(i-8,:) = reshape(mb{i-8},1,size(mb{i-8},1)*size(mb{i-8},2));
 end
-% 
-% demulmat = [1,1,1,0;
-%             1,1,0,1;
-%             0,1,1,1;
-%             1,0,1,1];
-demulmat = [1,1,1,1;
-            1,0,1,0;
-            1,1,0,0;
-            1,0,0,1];
-demulr = (demulmat\mrmat);
-demulg = (demulmat\mgmat);
-demulb = (demulmat\mbmat);
+
+demulmat = ones(4)-eye(4);
+% demulmat = hadamard(4);
+% demulmat = [1,1,1,1;
+%             1,0,1,0;
+%             1,1,0,0;
+%             1,0,0,1];
+demulr = ((demulmat\mrmat));
+demulg = ((demulmat\mgmat));
+demulb = ((demulmat\mbmat));
 for i = 1:4
     dem{i} = reshape(demulr(i,:),size(mr{i},1),size(mr{i},2));
     dem{i+4} = reshape(demulg(i,:),size(mg{i},1),size(mg{i},2));
@@ -157,20 +156,22 @@ for i = 1:4
 end
 
 for i = 1:3
-    figure(i+3);
+    figure(i);
     for j = 1:4
         subplot(2,4,j*2);
 %         imshowpair(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j},'montage');
-         imagesc(noisefreeim{(i-1)*4+j}-dem{(i-1)*4+j});
-        [ipsnr,isnr,imse] = snrcalc(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j});
-        name = ['psnr: ',num2str(ipsnr),' SNR: ',num2str(isnr)];
+        imagesc(log(abs(noisefreeim{(i-1)*4+j}-dem{(i-1)*4+j})));
+        [ipsnrm,isnr,imse] = snrcalc(dem{(i-1)*4+j},noisefreeim{(i-1)*4+j},1);
+        name = ['psnr: ',num2str(ipsnrm),' MG: ',num2str(ipsnrm/ipsnr)];
         title(name);
         axis off;
         colorbar;
         colormap bone;
-        caxis([-0.5,0.5]);
+        caxis([-20,0]);
     end
-    sgtitle('demultiplexed at 500ms,f/11');
+    sgtitle('right SIM 12db24ms, left DEM(three) at 0db48ms 2xgain');
+%     iptsetpref('ImshowBorder','tight');
+%     saveas(gcf,['dem',chan(i,:),num2str(i),'.png']);
 end
 
 %% check multiplexed image form sillum psnr 
@@ -181,17 +182,17 @@ figure;
 subplot(1,2,1);
 % imshowpair(reds,rednf,'montage');
 imagesc(reds-rednf);
-[ipsnr,isnr,imse] = snrcalc(reds,rednf);
+[ipsnr,isnr,imse] = snrcalc(reds,rednf,0);
 name = ['snr: ',num2str(isnr)];
 title(name);
 colorbar;
 subplot(1,2,2);
 % imshowpair(mr{1},rednf,'montage');
 imagesc(mr{1}-rednf);
-[ipsnr,isnr,imse] = snrcalc(rednf,mr{1});
+[ipsnr,isnr,imse] = snrcalc(rednf,mr{1},1);
 name = ['snr: ',num2str(isnr)];
 title(name);
-sgtitle('multiplex single illumination images vs multiplexed illumination image')
+sgtitle('multiplex single illumination images vs multiplexed illumination image');
 colorbar;
 colormap bone;
 caxis([-1,1]);

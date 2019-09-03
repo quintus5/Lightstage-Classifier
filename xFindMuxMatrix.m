@@ -4,12 +4,15 @@
 % Interestingly, this often leads to matrices that also have better MSE
 % This does not saturation into consideration -- todo!
 % All tunable parameters are in the top part of the file
-%clearvars
+clearvars
 
 %---
-NChans = 8;        % how many things are we estimating
+NChans = 7;        % how many things are we estimating
 NMeas = NChans;    % how many measurements do we get; Must be >= NChans
 SigStrength = 10;  % how strong is the signal, for noise strength sigma_n = 1
+SatFloor = repmat(floor(NChans/2),NChans,1); % upperbound of saturation 
+SatCeil = repmat(ceil(NChans/2+1),NChans,1); % lower bound of noisy data
+SatPixel = 0.96;   % signal intensity 0->1 with 0=darkness, 1=saturate.
 
 % Any prior information we have on the signal covariance goes here
 Rpp = eye(NChans); % if everthing's equally likely leave as the eye matrix
@@ -31,14 +34,31 @@ BestInfo = 0;
 
 iIter = 1;
 WhichEval = 'both';
-fprintf('iIter, BestMSE, BestInfo, sum(BestMSEW(:)),sum(BestInfoW(:))\n');
+fprintf('     iIter, BestMSE, BestInfo, sum(BestMSEW(:)),sum(BestInfoW(:))\n');
 while( 1 )
 	NewBest = false;
 	
+    % find the mean intensity
+    % assume all light sources are on, N = NChans, we hit 96% of saturation,
+    % for 10 bit image, that is 1024*0.96 = 973. Actual value should be
+    % measured during experiment as a function of exposure and gain.
+    % Therefore, when N sources are on, the intensity should be
+    % 0.96*N/NChans, assume that intensity scale linearly with sources.
+    MeanIntensity = SatPixel*sum(W,2)/NChans;
+    
 	% Evaluate the current W matrix
-	NoiseVar = (W'*W)^-1;  % from schechner, for noise variance = 1	
-	MSE = 1/NChans * trace(NoiseVar);  % schechner: use MSE
-	
+    % Each diagonal element is variance of each measurement. 
+    SigmaNoise = diag(MeanIntensity);
+    % from schechner, Multiplexed Fluorescence Unmixing, 2010
+    if iIter > 1
+        NoiseVar = (W'*SigmaNoise^-1*W)^-1;  % from schechner, for noise variance = 1	
+    else 
+        NoiseVar = (W'*W)^-1;
+    end
+%     figure(2);
+%     imagesc(NoiseVar);
+% 	NoiseVar = NoiseVar + cov(poisspdf(W,mean2(W))); 
+    MSE = 1/NChans * trace(NoiseVar);
     Info = sqrt(det( SigVar + NoiseVar ) ./ det( NoiseVar )); % info
 	
 	if( strcmp(WhichEval, 'mse') || strcmp(WhichEval,'both') )
@@ -64,28 +84,32 @@ while( 1 )
 	if( NewBest )
 		disp([iIter, BestMSE, BestInfo, sum(BestMSEW(:)),sum(BestInfoW(:))])
 		figure(1);
-		subplot(221);
+		subplot(231);
 		imagesc(BestMSEW);
 		axis image
 		colorbar
 		title('optimise MSE');
-		subplot(222);
+		subplot(232);
 		imagesc(BestMSENoiseVar);
 		axis image
 		title(sprintf('MSE: %6.5f, Info: %6.5e', BestMSE, BestMSEInfo ));
 		colorbar
-		
-		subplot(223)
+        subplot(233);
+		CovEllipse(BestMSENoiseVar,0.99);
+        hold on;
+		subplot(234)
 		imagesc(BestInfoW);
 		axis image
 		colorbar
 		title('optimise Info');
-		subplot(224);
+		subplot(235);
 		imagesc(BestInfoNoiseVar);
 		axis image
 		title(sprintf('MSE: %6.5f, Info: %6.5e', BestInfoMSE, BestInfo ));
 		colorbar
-				
+		subplot(236);
+        CovEllipse(BestInfoNoiseVar,0.99);
+        hold on;
 		drawnow
 	end
 	
@@ -109,6 +133,12 @@ while( 1 )
 		if( BinaryOnly )
 			% binary only: only flip binary bits
 			W( WhichToFlip ) = 1-W( WhichToFlip );
+            w1 = sum(W,2);
+%             figure(2);
+%             imagesc(W);
+%             axis image
+%             colorbar
+%             drawnow;
 		else
 			% continuous: allow grayscale masks
 			W( WhichToFlip ) = min(1, max(0, W( WhichToFlip ) + 0.5.*randn(size(WhichToFlip))));
@@ -116,8 +146,8 @@ while( 1 )
 		
 		% check for a well-conditioned matrix W
 		% i.e. one that inverts well.  If it doesn't try again.
-		if( cond(W) <1e6 )
-			break
+		if( cond(W) <1e6  && (sum((w1 >= SatFloor) & (w1 <= SatCeil)) == NChans))
+            break
 		end
 		
 	end

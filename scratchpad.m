@@ -248,8 +248,102 @@ subplot(2,6,12);[g,t] = edge(noisefreeim{5},'zerocross');imshow(g)
 %% fuzzy edge detection
  a1=dyaddown(noisefreeim{1},'m',1);
  
- 
- 
 %% 8 light test
 table = ones(32);
 write(reg,table(3,:),'uint32');
+
+%% low light gray level compare
+bit = 65535;
+myFolder = 'G:\work\matlab\basler\testimage\grey';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+im20 = zeros(100,416);
+for k = 1:length(jpegFiles)
+  baseFileName = jpegFiles(k).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,k) = double(imread(fullFileName))/bit;
+  im20 = im20 + im(:,:,k);
+end
+myFolder = 'G:\work\matlab\basler\testimage\grey10ms6db';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+im10 = zeros(100,416);
+for k = 1:length(jpegFiles)
+  baseFileName = jpegFiles(k).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,k) = double(imread(fullFileName))/bit;
+  im10 = im10 + im(:,:,k);
+end
+myFolder = 'G:\work\matlab\basler\testimage\grey5ms12db';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+im5 = zeros(100,416);
+for k = 1:length(jpegFiles)
+  baseFileName = jpegFiles(k).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,k) = double(imread(fullFileName))/bit;
+  im5 = im5 + im(:,:,k);
+end
+
+im20 = im20/20; im10 = im10/20;im5= im5/20;
+im5 = im5*1.0225+0.014;im10 = im10*1.0216+0.005;
+im10(im10(:,:) > 1) = 1; 
+im5(im5(:,:) > 1) = 1;
+imn = imnoise(im20, 'poisson' );
+subplot(3,1,1);imagesc(log(abs(im20-imn)));colorbar;title('20ms vs poisson noise added')
+subplot(3,1,2);imagesc(log(abs(im20-im10)));colorbar;title('20ms vs 10')
+subplot(3,1,3);imagesc(log(abs(im20-im5)));title('20ms vs 5')
+colorbar
+colormap gray
+% trace a row
+line20 = im20(50,:);line10 = im10(50,:);line5 = im5(50,:);
+figure;
+plot(line20);hold on;plot(line10);plot(line5);
+
+%% noise model
+
+myFolder = 'C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+for red = 1:8
+  baseFileName = jpegFiles(red).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,red) = double(imread(fullFileName))/bit;
+  redvar(red) = std2(im(:,:,red));
+end
+for green = 9:16
+  baseFileName = jpegFiles(green).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,green) = double(imread(fullFileName))/bit;
+  greenvar(green-8) = std2(im(:,:,green));
+end
+for blue = 17:24
+  baseFileName = jpegFiles(blue).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,blue) = double(imread(fullFileName))/bit;
+  bluevar(blue-16) = std2(im(:,:,blue));
+end
+for ir = 25:32
+  baseFileName = jpegFiles(ir).name;
+  fullFileName = fullfile(myFolder, baseFileName);
+  im(:,:,ir) = double(imread(fullFileName))/bit;
+  irvar(ir-24) = std2(im(:,:,ir));
+end
+baseim = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\zbase.tiff'))/bit;
+figure;
+plot(redvar,'.');figure;
+plot(greenvar,'.');figure;
+plot(bluevar,'.');figure;
+plot(irvar,'.');
+
+%% color reproduction
+
+bim(:,:,1) = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\Basler_acA1920-150um__40026510__20190905_205232082_8.tiff'))/bit;
+bim(:,:,2) = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\Basler_acA1920-150um__40026510__20190905_205232082_16.tiff'))/bit;
+bim(:,:,3) = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\Basler_acA1920-150um__40026510__20190905_205232082_24.tiff'))/bit;
+iim(:,:,1) = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\Basler_acA1920-150um__40026510__20190905_205232082_32.tiff'))/bit;
+
+newim = rgb2hsv(bim);
+newim(:,:,3) = iim;
+bim = hsv2rgb(newim);
+lim = rgb2lab(bim);

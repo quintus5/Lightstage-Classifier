@@ -7,12 +7,13 @@
 clearvars
 
 %---
-NChans = 7;        % how many things are we estimating
+NChans = 10;        % how many things are we estimating
 NMeas = NChans;    % how many measurements do we get; Must be >= NChans
 SigStrength = 10;  % how strong is the signal, for noise strength sigma_n = 1
 SatFloor = repmat(floor(NChans/2),NChans,1); % upperbound of saturation 
 SatCeil = repmat(ceil(NChans/2+1),NChans,1); % lower bound of noisy data
-SatPixel = 0.96;   % signal intensity 0->1 with 0=darkness, 1=saturate.
+% SatPixel = 0.96;   % signal intensity 0->1 with 0=darkness, 1=saturate.
+SatPixel = NChans/SatCeil(1)*0.96; % saturate at certain number of light on
 
 % Any prior information we have on the signal covariance goes here
 Rpp = eye(NChans); % if everthing's equally likely leave as the eye matrix
@@ -45,19 +46,18 @@ while( 1 )
     % Therefore, when N sources are on, the intensity should be
     % 0.96*N/NChans, assume that intensity scale linearly with sources.
     MeanIntensity = SatPixel*sum(W,2)/NChans;
-    
+%     MeanIntensity(MeanIntensity >= 1) = 1;
 	% Evaluate the current W matrix
     % Each diagonal element is variance of each measurement. 
-    SigmaNoise = diag(MeanIntensity);
+%     SigmaNoise = diag(MeanIntensity) + 0.1;
+    SigmaNoise = 0.0916*eye(NChans)+diag(MeanIntensity);
     % from schechner, Multiplexed Fluorescence Unmixing, 2010
-    if iIter > 1
-        NoiseVar = (W'*SigmaNoise^-1*W)^-1;  % from schechner, for noise variance = 1	
+    if iIter > 0
+        NoiseVar = (W'*SigmaNoise*W)^-1;   % from schechner, for noise variance = 1	
     else 
         NoiseVar = (W'*W)^-1;
     end
-%     figure(2);
-%     imagesc(NoiseVar);
-% 	NoiseVar = NoiseVar + cov(poisspdf(W,mean2(W))); 
+
     MSE = 1/NChans * trace(NoiseVar);
     Info = sqrt(det( SigVar + NoiseVar ) ./ det( NoiseVar )); % info
 	
@@ -95,7 +95,7 @@ while( 1 )
 		title(sprintf('MSE: %6.5f, Info: %6.5e', BestMSE, BestMSEInfo ));
 		colorbar
         subplot(233);
-		CovEllipse(BestMSENoiseVar,0.99);
+		imagesc(SigVar);
         hold on;
 		subplot(234)
 		imagesc(BestInfoW);
@@ -108,8 +108,8 @@ while( 1 )
 		title(sprintf('MSE: %6.5f, Info: %6.5e', BestInfoMSE, BestInfo ));
 		colorbar
 		subplot(236);
-        CovEllipse(BestInfoNoiseVar,0.99);
-        hold on;
+        imagesc(SigmaNoise);
+%         hold on;
 		drawnow
 	end
 	
@@ -146,11 +146,14 @@ while( 1 )
 		
 		% check for a well-conditioned matrix W
 		% i.e. one that inverts well.  If it doesn't try again.
-		if( cond(W) <1e6  && (sum((w1 >= SatFloor) & (w1 <= SatCeil)) == NChans))
+		if( cond(W) <1e6)%  && (sum((w1 >= SatFloor) & (w1 <= SatCeil)) == NChans))
             break
 		end
 		
 	end
-	
+% 	if ((isequal(sum(BestInfoW,1),sum(BestInfoW,2)') || isequal(sum(BestMSEW,1),sum(BestMSEW,2)')) && iIter > 2)
+%         break;
+%     end
 	iIter = iIter + 1;
+    
 end

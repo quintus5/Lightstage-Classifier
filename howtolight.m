@@ -22,6 +22,7 @@ lightbtable = greentable+bluetable;
 whitetable = greentable+bluetable+redtable;
 purpletable = bluetable+redtable;
 alltable = greentable+bluetable+redtable+NIRtable;
+randomtable = ceil(rand(1,8)*8);
 
 %check error
 if mod(no_led,1) || no_led > 9 || no_led <= 0
@@ -104,7 +105,9 @@ for i = 1:length(color)
         case 'a'
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*alltable(1:no_led)'))-'0';
         case 'n'
-            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = zeros(no_led*4,no_led);
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = zeros(no_led^2,no_led);
+        case 'x'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*randomtable(1:no_led)'))-'0';
         otherwise
                 error(['color ', color(i),' does not exist']);
     end

@@ -1,6 +1,6 @@
 % sequenceTable = howtolight(8,'i','LightPattern','m','Multiplexingstyle','all');
-sequenceTable = howtolight(8,'ri','LightPattern','mm','Multiplexingstyle','step');
-images = 1;
+sequenceTable = howtolight(8,'rgbi','LightPattern','mmmm','Multiplexingstyle','step');
+images = 2;
 % writeDigitalPin(ard,'D7',1);
 % writeDigitalPin(ard,'D7',0);
 tic;
@@ -9,7 +9,7 @@ for k = 1:images
         write(reg,sequenceTable(count,:),'uint32');
         writeDigitalPin(ard,'D8',1);
         writeDigitalPin(ard,'D8',0);
-        pause(0.03);
+        pause(1);
     end
 end
 toc;
@@ -66,3 +66,10 @@ toc;
 % set 9: 6db 36ms rgblpyi mt 28im
 % set a: 6db 24ms rgblpyi mh 28im
 % set b: 6db 24ms rgblpyi mt 28im
+
+
+% exposure time for info calc
+% r = 120000
+% g = 100000
+% b = 50000
+% i = 38000

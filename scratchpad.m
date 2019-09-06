@@ -301,7 +301,7 @@ figure;
 plot(line20);hold on;plot(line10);plot(line5);
 
 %% noise model
-
+bit = 65535;
 myFolder = 'C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
@@ -309,32 +309,35 @@ for red = 1:8
   baseFileName = jpegFiles(red).name;
   fullFileName = fullfile(myFolder, baseFileName);
   im(:,:,red) = double(imread(fullFileName))/bit;
-  redvar(red) = std2(im(:,:,red));
+  redvar(red) = std2(im(:,:,red).^2);
+  redmn(red) = mean2(im(:,:,red));
 end
 for green = 9:16
   baseFileName = jpegFiles(green).name;
   fullFileName = fullfile(myFolder, baseFileName);
   im(:,:,green) = double(imread(fullFileName))/bit;
-  greenvar(green-8) = std2(im(:,:,green));
+  greenvar(green-8) = std2(im(:,:,green).^2);
+  greenmn(green-8) = mean2(im(:,:,green));
 end
 for blue = 17:24
   baseFileName = jpegFiles(blue).name;
   fullFileName = fullfile(myFolder, baseFileName);
   im(:,:,blue) = double(imread(fullFileName))/bit;
-  bluevar(blue-16) = std2(im(:,:,blue));
+  bluevar(blue-16) = std2(im(:,:,blue).^2);
+  bluemn(blue-16) = mean2(im(:,:,blue));
 end
 for ir = 25:32
   baseFileName = jpegFiles(ir).name;
   fullFileName = fullfile(myFolder, baseFileName);
   im(:,:,ir) = double(imread(fullFileName))/bit;
-  irvar(ir-24) = std2(im(:,:,ir));
+  irvar(ir-24) = std2(im(:,:,ir).^2);
+  irmn(ir-24) = mean2(im(:,:,ir));
 end
-baseim = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\zbase.tiff'))/bit;
-figure;
-plot(redvar,'.');figure;
-plot(greenvar,'.');figure;
-plot(bluevar,'.');figure;
-plot(irvar,'.');
+baseim = double(imread('C:\Users\roboticimaging\Documents\kronoslightstage\testimage\hhh\zbase.tiff'));
+figure;noisecalibrationplot(redmn);
+figure;noisecalibrationplot(greenmn);
+figure;noisecalibrationplot(bluemn);
+figure;noisecalibrationplot(irmn);
 
 %% color reproduction
 
@@ -347,3 +350,12 @@ newim = rgb2hsv(bim);
 newim(:,:,3) = iim;
 bim = hsv2rgb(newim);
 lim = rgb2lab(bim);
+
+%% signal calculation
+Fstop = 1/4;
+Expt = 0.110;
+Isrc = 150;
+Ref = 0.5;
+quant = 0.7;
+delta = 4.8e-6;
+J = 10e15*Fstop^-2*Expt*Isrc*Ref*quant*delta^2

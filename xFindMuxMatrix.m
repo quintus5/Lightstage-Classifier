@@ -7,13 +7,13 @@
 clearvars
 
 %---
-NChans = 10;        % how many things are we estimating
+NChans = 8;        % how many things are we estimating
 NMeas = NChans;    % how many measurements do we get; Must be >= NChans
 SigStrength = 10;  % how strong is the signal, for noise strength sigma_n = 1
 SatFloor = repmat(floor(NChans/2),NChans,1); % upperbound of saturation 
 SatCeil = repmat(ceil(NChans/2+1),NChans,1); % lower bound of noisy data
-% SatPixel = 0.96;   % signal intensity 0->1 with 0=darkness, 1=saturate.
-SatPixel = NChans/SatCeil(1)*0.96; % saturate at certain number of light on
+SatPixel = NChans/SatCeil(1)*0.96; % saturate at certain number of light on 0=darkness, 1=saturate.
+GrayLvlVar = 0.045; % Signal Independent noise, obtained via experiment.
 
 % Any prior information we have on the signal covariance goes here
 Rpp = eye(NChans); % if everthing's equally likely leave as the eye matrix
@@ -40,25 +40,27 @@ while( 1 )
 	NewBest = false;
 	
     % find the mean intensity
-    % assume all light sources are on, N = NChans, we hit 96% of saturation,
+    % assume N light sources are on, we hit 96% of saturation,
     % for 10 bit image, that is 1024*0.96 = 973. Actual value should be
     % measured during experiment as a function of exposure and gain.
-    % Therefore, when N sources are on, the intensity should be
-    % 0.96*N/NChans, assume that intensity scale linearly with sources.
-    MeanIntensity = SatPixel*sum(W,2)/NChans;
-%     MeanIntensity(MeanIntensity >= 1) = 1;
+    % assume that intensity scale linearly with sources.
+    PhotonVar = SatPixel*eye(NChans)/NChans; % photon 
+    
 	% Evaluate the current W matrix
     % Each diagonal element is variance of each measurement. 
-%     SigmaNoise = diag(MeanIntensity) + 0.1;
-    SigmaNoise = 0.0916*eye(NChans)+diag(MeanIntensity);
+%     SigmaNoise = PhotonVar.*diag(sum(W,2)) + 0.045*eye(NChans);
+    
+    SigmaNoise = 0.047*diag(sum(W,2))+0.065*eye(NChans);
     % from schechner, Multiplexed Fluorescence Unmixing, 2010
     if iIter > 0
-        NoiseVar = (W'*SigmaNoise*W)^-1;   % from schechner, for noise variance = 1	
+        NoiseVar = (W'*SigmaNoise^-1*W)^-1;   % from schechner, for noise variance = 1	
     else 
         NoiseVar = (W'*W)^-1;
     end
 
     MSE = 1/NChans * trace(NoiseVar);
+%     MSE=(4*NChans/(NChans+1)^2)*GrayLvlVar+(2*NChans/(NChans+1))*0.04;
+
     Info = sqrt(det( SigVar + NoiseVar ) ./ det( NoiseVar )); % info
 	
 	if( strcmp(WhichEval, 'mse') || strcmp(WhichEval,'both') )

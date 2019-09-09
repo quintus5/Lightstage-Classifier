@@ -1,8 +1,8 @@
 % test snr of single source illum and multiplex
 % clc;clear;close all;
-bit = 255;
-% myFolder = 'C:\Users\user\Pictures\basler\classtest\plate\hole0db96ms_s';
-myFolder = 'C:\Users\user\Pictures\basler\fake\orange5';
+bit = 65535;
+myFolder = 'C:\Users\user\Pictures\basler\classtest\plate3\100ms0db';
+% myFolder = 'C:\Users\user\Pictures\basler\fake\orange5';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 

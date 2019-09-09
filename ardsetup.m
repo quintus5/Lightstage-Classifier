@@ -3,7 +3,7 @@
 clc;clear;
 
 % init arduino
-ard = arduino('COM3', 'Uno', 'Libraries', 'ShiftRegister');
+ard = arduino('COM4', 'Uno', 'Libraries', 'ShiftRegister');
 % port on the connector to shift register
 %{ 
    c l g   d 5
@@ -12,6 +12,7 @@ ard = arduino('COM3', 'Uno', 'Libraries', 'ShiftRegister');
   |_|_|_|_|_|_|
 %}
 % set it on arduino
+% 5V yellow, GND gray
 latch = 'D11'; %purple
 clk = 'D10'; %blue
 data = 'D12'; %orange

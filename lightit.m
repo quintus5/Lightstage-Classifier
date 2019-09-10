@@ -1,8 +1,7 @@
 % sequenceTable = howtolight(8,'i','LightPattern','m','Multiplexingstyle','all');
 sequenceTable = howtolight(8,'rgbi','LightPattern','mmmm','Multiplexingstyle','step');
 images = 2;
-% writeDigitalPin(ard,'D7',1);
-% writeDigitalPin(ard,'D7',0);
+
 tic;
 for k = 1:images
     for count = 1:size(sequenceTable,1)
@@ -72,11 +71,6 @@ toc;
 % r = 120000
 % g = 100000
 % b = 50000
-
-
-
-% exposure time for info calc
-% r = 120000
-% g = 100000
-% b = 50000
 % i = 38000
+
+% 

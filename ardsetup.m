@@ -3,7 +3,7 @@
 clc;clear;
 
 % init arduino
-ard = arduino('COM4', 'Uno', 'Libraries', 'ShiftRegister');
+ard = arduino('COM3', 'Uno', 'Libraries', 'ShiftRegister');
 % port on the connector to shift register
 %{ 
    c l g   d 5

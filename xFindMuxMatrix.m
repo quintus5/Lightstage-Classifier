@@ -13,8 +13,8 @@ SigStrength = 10;  % how strong is the signal, for noise strength sigma_n = 1
 SatFloor = repmat(floor(NChans/2-1),NChans,1); % upperbound of saturation 
 SatCeil = repmat(ceil(NChans/2+1),NChans,1); % lower bound of noisy data
 SatPixel = NChans/SatCeil(1)*0.96; % saturate at certain number of light on 0=darkness, 1=saturate.
-GrayLvlVar = 0.01; % Signal Independent noise, obtained via experiment.
-PhotonVar = 0.01; % Signal dependant noise, obtained via experiment.
+GrayLvlVar = 0.1; % Signal Independent noise, obtained via experiment.
+PhotonVar = 0.1; % Signal dependant noise, obtained via experiment.
 
 %         red            green           blue            nir
 % photon  0.048          0.048           0.052           0.047

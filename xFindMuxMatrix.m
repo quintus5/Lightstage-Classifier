@@ -12,13 +12,15 @@ NMeas = NChans;    % how many measurements do we get; Must be >= NChans
 SigStrength = 10;  % how strong is the signal, for noise strength sigma_n = 1
 SatFloor = repmat(floor(NChans/2-1),NChans,1); % upperbound of saturation 
 SatCeil = repmat(ceil(NChans/2+1),NChans,1); % lower bound of noisy data
-SatPixel = NChans/SatCeil(1)*0.96; % saturate at certain number of light on 0=darkness, 1=saturate.
+
+% Noise model value found by experiment
 GrayLvlVar = 0.1; % Signal Independent noise, obtained via experiment.
 PhotonVar = 0.1; % Signal dependant noise, obtained via experiment.
 
 %         red            green           blue            nir
-% photon  0.048          0.048           0.052           0.047
-% gray    0.04           0.04            0.013           0.065
+% photon  0.082          0.1             0.093           0.088
+% gray    0.13           0.11            0.081           0.073
+
 % Any prior information we have on the signal covariance goes here
 Rpp = eye(NChans); % if everthing's equally likely leave as the eye matrix
 Rpp = Rpp ./ det(Rpp).^(1/NChans);        % normalize energy
@@ -33,7 +35,7 @@ BinaryOnly = true;  % true for binary masks, false for grayscale
 W = zeros(NMeas, NChans);
 W(1:NChans,1:NChans) = eye(NChans);
 
-%---Find mmse for Identity mat
+%---Find mse for Identity mat
 SigmaNoise = PhotonVar*diag(sum(W,2))+GrayLvlVar*eye(NChans);
 MSEI = (1/NChans)*trace((W'*SigmaNoise^-1*W)^-1);
 
@@ -47,29 +49,21 @@ fprintf('     iIter, BestMSE, BestInfo, sum(BestMSEW(:)),sum(BestInfoW(:))\n');
 while( 1 )
 	NewBest = false;
 	
-    % find the mean intensity
-    % assume N light sources are on, we hit 96% of saturation,
-    % for 10 bit image, that is 1024*0.96 = 973. Actual value should be
-    % measured during experiment as a function of exposure and gain.
-    % assume that intensity scale linearly with sources.
-%     PhotonVar = SatPixdel*eye(NChans)/NChans; % photon 
-    
 	% Evaluate the current W matrix
     % Each diagonal element is variance of each measurement. 
-%     SigmaNoise = PhotonVar.*diag(sum(W,2)) + 0.045*eye(NChans);
-    
+    % Affine noise model presented in Ratner's paper
     SigmaNoise = PhotonVar*diag(sum(W,2))+GrayLvlVar*eye(NChans);
+    
     % from schechner, Multiplexed Fluorescence Unmixing, 2010
-    NoiseVar = (W'*SigmaNoise^-1*W)^-1;   % from schechner
+    NoiseVar = (W'*SigmaNoise^-1*W)^-1; 
 
     MSE = 1/NChans * trace(NoiseVar);
 
-%     
-%     Rpp = diag(sum(W,2)); % if everthing's equally likely leave as the eye matrix
+%     Rpp = diag(sum(W,2)); % if 
 %     Rpp = Rpp ./ det(Rpp).^(1/NChans);        % normalize energy
 %     Rpp = Rpp .* SigStrength.^(1/NChans);     % and scale to SigStrength
 %     SigVar = Rpp; 	
-%     
+%   start with MSE then move on to signal strnegth     
     Info = sqrt(det( SigVar + NoiseVar ) ./ det( NoiseVar )); % info
 
     
@@ -149,7 +143,7 @@ while( 1 )
 		
 		% check for a well-conditioned matrix W
 		% i.e. one that inverts well.  If it doesn't try again.
-		if( cond(W) <1e6)%  && (sum((w1 >= SatFloor) & (w1 <= SatCeil)) == NChans))
+		if( 2*eps*cond(W) < 1e-10)%  && (sum((w1 >= SatFloor) & (w1 <= SatCeil)) == NChans))
             break
 		end
 		

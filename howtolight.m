@@ -1,4 +1,3 @@
-
 function sequence = howtolight(no_led,color,varargin)
 %HOWTOLIGHT specify the color and lighting pattern of light stage
 % HOWTOLIGHT(no_led, color, 'param')
@@ -47,25 +46,40 @@ if nargin > 2
             end 
         elseif strcmp(varargin{i},'Multiplexingstyle') %is pattern style is given
             if strcmp(varargin{i+1},'hadamard')
-                mulmat = hadamard(no_led)+(hadamard(no_led)<0);
+%                 mulmat = hadamard(no_led)+(hadamard(no_led)<0);
 %                 mulmat = (1-hadamard(no_led))/2;
-%                 mulmat = (1-mulmat(2:end,2:end))/2;
+                mulmat = (1-mulmat(2:end,2:end))/2;
             elseif strcmp(varargin{i+1},'three')
                 mulmat = ones(no_led)-eye(no_led);
             elseif strcmp(varargin{i+1},'all')
                 mulmat = ones(no_led);
             elseif strcmp(varargin{i+1},'opt')
                 mulmat = [    1     1     0     1     1     1     0     0;
-     0     0     1     1     0     1     0     1;
-     0     1     0     1     0     0     1     1;
-     0     1     1     0     0     1     1     0;
-     0     0     0     0     1     1     1     1;
-     0     0     1     1     1     0     1     0;
-     0     1     1     0     1     0     0     1;
-     1     0     1     0     0     0     1     1;
-];
+                             0     0     1     1     0     1     0     1;
+                             0     1     0     1     0     0     1     1;
+                             0     1     1     0     0     1     1     0;
+                             0     0     0     0     1     1     1     1;
+                             0     0     1     1     1     0     1     0;
+                             0     1     1     0     1     0     0     1;
+                             1     0     1     0     0     0     1     1;
+                        ];
             elseif strcmp(varargin{i+1},'step')
-                mulmat = triu(ones(no_led));
+                mulmat = [1,1,1,1,1,1,1,1;
+                          0,0,0,0,1,1,1,1;
+                          0,1,1,1,1,1,1,1;
+                          0,0,0,0,0,1,1,1;
+                          0,0,1,1,1,1,1,1;
+                          0,0,0,0,0,0,1,1;
+                          0,0,0,1,1,1,1,1;
+                          0,0,0,0,0,0,0,1];
+            elseif strcmp(varargin{i+1},'lowerstep')
+                mulmat = [zeros(1,no_led);ones(1,no_led)];
+                mulmat = repmat(mulmat,no_led/2,1);
+                mulmat = triu(mulmat);
+            elseif strcmp(varargin{i+1},'upperstep') %doesnt work with NIE
+                mulmat = [ones(1,no_led);zeros(1,no_led)];
+                mulmat = repmat(mulmat,no_led/2,1);
+                mulmat = triu(mulmat);
             else
                 error('no such multiplexing pattern')
             end

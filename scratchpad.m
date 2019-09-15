@@ -309,7 +309,7 @@ for i = 1:24
   baseFileName = jpegFiles(i).name;
   fullFileName = fullfile(myFolder, baseFileName);
   im(:,:,i) = double(imread(fullFileName))/bit;
-  redvar(i) = std2(im(:,:,i)).^2;
+  redvar(i) = std2(im(:,:,i));
   redmn(i) = mean2(im(:,:,i));
 end
 for green = 25:48
@@ -347,10 +347,24 @@ end
 % end
 % nbmn = nbmn/8;ngmn = ngmn/8;nrmn = nrmn/8;nimn = nimn/8;
 % nbvar = nbvar/8;ngvar = ngvar/8;nrvar = nrvar/8;nivar = nivar/8;
-plot(bluemn,bluevar,'.');%ylim([0,0.2]);xlim([0,0.4]);title('Noise Calibration Red');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma^2');grid on;
-figure;plot(redmn,redvar,'.');%ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid on;
-figure;plot(greenmn,greenvar,'.');%ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid
-figure;plot(irmn,irvar,'.');%ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid
+% plot(bluemn,bluevar,'o');ylim([0,0.2]);xlim([0,0.4]);title('Noise Calibration Red');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma^2');grid on;
+% figure;plot(redmn,redvar,'o');ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid on;
+% figure;plot(greenmn,greenvar,'o');ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid
+% figure;plot(irmn,irvar,'o');ylim([0,0.4]);xlim([0,0.4]);title('Noise Calibration Green');xlabel('$\bar{I}$','Interpreter','latex');ylabel('\sigma');grid
+
+subplot(221)
+plot(redmn(1:4),redvar(1:4),'o');ylim([0,0.1]);xlim([0,1])
+title('red');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(222)
+plot(greenmn(1:4),greenvar(1:4),'o');ylim([0,0.1]);xlim([0,1])
+title('green');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(223)
+plot(bluemn(1:4),bluevar(1:4),'o');ylim([0,0.1]);xlim([0,1])
+title('blue');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(224)
+plot(irmn(1:4),irvar(1:4),'o');ylim([0,0.1]);xlim([0,1])
+title('nir');xlabel('Mean Intensity');ylabel('STD');grid on;
+sgtitle('standard deviation with increasing intensity of upper half')
 %% color reproduction
 
 bim(:,:,1) = double(imread('C:\Users\user\Pictures\basler\testimage\ppp\Basler acA1920-150um (40026510)_20190911_224751474_0008.tiff'))/bit;
@@ -405,5 +419,131 @@ blumn = sort(blumn);
 nirmn = sort(nirmn);
 % plot(redmn,'r');hold on;plot(grnmn,'g');plot(blumn,'b');plot(nirmn,'k')
 
+%% test stepping light upper and lower
+clear;bit = 65535;close all;
+myFolder = 'C:\Users\user\Pictures\basler\testimage\step1309ms40';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+for i = 1:length(jpegFiles)
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+    im(:,:,i) = double(imread(fullFileName))/65536;
+    immn(i) = mean2(im(:,:,i));
+    imvar(i) = std2(im(:,:,i));
+end
+
+subplot(221)
+plot(immn(1:4),imvar(1:4),'o');ylim([0,0.06]);xlim([0,1])
+title('red');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(222)
+plot(immn(9:12),imvar(9:12),'o');ylim([0,0.06]);xlim([0,1])
+title('green');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(223)
+plot(immn(17:20),imvar(17:20),'o');ylim([0,0.06]);xlim([0,1])
+title('blue');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(224)
+plot(immn(25:28),imvar(25:28),'o');ylim([0,0.06]);xlim([0,1])
+title('nir');xlabel('Mean Intensity');ylabel('STD');grid on;
+sgtitle('standard deviation with increasing intensity of upper half')
+figure;
+subplot(221)
+plot(immn(5:8),imvar(5:8),'o');ylim([0,0.02]);xlim([0,0.3])
+title('red');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(222)
+plot(immn(13:16),imvar(13:16),'o');ylim([0,0.02]);xlim([0,0.3])
+title('green');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(223)
+plot(immn(21:24),imvar(21:24),'o');ylim([0,0.02]);xlim([0,0.3])
+title('blue');xlabel('Mean Intensity');ylabel('STD');grid on;
+subplot(224)
+plot(immn(29:32),imvar(29:32),'o');ylim([0,0.02]);xlim([0,0.3])
+title('nir');xlabel('Mean Intensity');ylabel('STD');grid on;
+sgtitle('standard deviation with increasing intensity of lower half')
+
 %%
+maxy = max(imvar);
+maxx = max(immn);
+figure;
+subplot(1,2,1);
+plot(immn(1:4),imvar(1:4),'o');title('upper 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+subplot(1,2,2);
+plot(immn(5:8),imvar(5:8),'o');title('lower 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+sgtitle('red')
+figure;
+subplot(1,2,1);
+plot(immn(9:12),imvar(9:12),'o');title('upper 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+subplot(1,2,2);
+plot(immn(13:16),imvar(13:16),'o');title('lower 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+sgtitle('green')
+figure;
+subplot(1,2,1);
+plot(immn(17:20),imvar(17:20),'o');title('upper 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+subplot(1,2,2);
+plot(immn(21:24),imvar(21:24),'o');title('lower 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+sgtitle('blue')
+figure;
+subplot(1,2,1);
+plot(immn(25:28),imvar(25:28),'o');title('upper 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+subplot(1,2,2);
+plot(immn(29:32),imvar(29:32),'o');title('lower 4');grid
+xlabel('Mean Intensity');ylabel('Variance');ylim([0,maxy]);
+sgtitle('Nir')
+
+%% test single light
+clear;
+bit = 65535;close all;
+myFolder = 'C:\Users\user\Pictures\basler\testimage\sin1309ms100';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+for i = 1:length(jpegFiles)
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+%     if i == 5 || 13 || 21 || 29
+%         im(:,:,i) = (imread(fullFileName));
+%     else 
+        im(:,:,i) = double(imread(fullFileName))/bit;
+%     end
+    imvar(i) = std2(im(:,:,i))^2;
+    immn(i) = mean2(im(:,:,i));
+end
+
+figure;
+subplot(1,2,1);
+plot(immn(1:2:8),'o');title('upper 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+subplot(1,2,2);
+plot(immn(2:2:8),'o');title('lower 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+sgtitle('red')
+figure;
+subplot(1,2,1);
+plot(immn(9:2:16),'o');title('upper 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+subplot(1,2,2);
+plot(immn(10:2:16),'o');title('lower 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+sgtitle('green');
+figure;
+subplot(1,2,1);
+plot(immn(17:2:24),'o');title('upper 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+subplot(1,2,2);
+plot(immn(18:2:24),'o');title('lower 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+sgtitle('blue');
+figure;
+subplot(1,2,1);
+plot(immn(25:2:32),'o');title('upper 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+subplot(1,2,2);
+plot(immn(26:2:32),'o');title('lower 4');grid
+xlabel('Position');ylabel('Mean Intensity');ylim([0,1]);
+sgtitle('NIR');
 

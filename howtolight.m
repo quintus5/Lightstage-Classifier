@@ -53,17 +53,16 @@ if nargin > 2
                 mulmat = ones(no_led)-eye(no_led);
             elseif strcmp(varargin{i+1},'all')
                 mulmat = ones(no_led);
-            elseif strcmp(varargin{i+1},'opt')
-                mulmat = [    1     1     0     1     1     1     0     0;
-                             0     0     1     1     0     1     0     1;
-                             0     1     0     1     0     0     1     1;
-                             0     1     1     0     0     1     1     0;
-                             0     0     0     0     1     1     1     1;
-                             0     0     1     1     1     0     1     0;
-                             0     1     1     0     1     0     0     1;
-                             1     0     1     0     0     0     1     1;
-                        ];
             elseif strcmp(varargin{i+1},'step')
+                mulmat = [1,1,1,1,0,0,0,0;
+                          0,0,0,0,1,1,1,1;
+                          0,1,1,1,0,0,0,0;
+                          0,0,0,0,0,1,1,1;
+                          0,0,1,1,0,0,0,0;
+                          0,0,0,0,0,0,1,1;
+                          0,0,0,1,0,0,0,0;
+                          0,0,0,0,0,0,0,1];
+            elseif strcmp(varargin{i+1},'stepall')
                 mulmat = [1,1,1,1,1,1,1,1;
                           0,0,0,0,1,1,1,1;
                           0,1,1,1,1,1,1,1;
@@ -73,13 +72,77 @@ if nargin > 2
                           0,0,0,1,1,1,1,1;
                           0,0,0,0,0,0,0,1];
             elseif strcmp(varargin{i+1},'lowerstep')
-                mulmat = [zeros(1,no_led);ones(1,no_led)];
-                mulmat = repmat(mulmat,no_led/2,1);
-                mulmat = triu(mulmat);
-            elseif strcmp(varargin{i+1},'upperstep') %doesnt work with NIE
-                mulmat = [ones(1,no_led);zeros(1,no_led)];
-                mulmat = repmat(mulmat,no_led/2,1);
-                mulmat = triu(mulmat);
+                mulmat = [0,0,0,0,0,0,0,0;
+                          0,0,0,1,1,1,1,1;
+                          0,0,0,0,0,0,0,0;
+                          0,0,1,1,0,1,1,1;
+                          0,0,0,0,0,0,0,0;
+                          0,1,1,1,0,0,1,1;
+                          0,0,0,0,0,0,0,0;
+                          1,1,1,1,0,0,0,1];
+            elseif strcmp(varargin{i+1},'lowerstep3')
+                mulmat = [0,0,0,0,0,0,0,0;
+                          0,0,1,1,0,1,1,1;
+                          0,0,0,0,0,0,0,0;
+                          0,1,1,1,1,0,0,1;
+                          0,0,0,0,0,0,0,0;
+                          0,1,0,1,0,0,1,1;
+                          0,0,0,0,0,0,0,0;
+                          1,0,1,1,0,1,1,1];
+            elseif strcmp(varargin{i+1},'lowerstep2')
+                mulmat = [0,0,0,0,0,0,0,0;
+                          0,1,0,1,0,0,1,1;
+                          0,0,0,0,0,0,0,0;
+                          1,0,1,1,0,1,1,1;
+                          0,0,0,0,0,0,0,0;
+                          0,1,1,1,1,0,1,1;
+                          0,0,0,0,0,0,0,0;
+                          0,0,1,1,0,1,0,1];
+            elseif strcmp(varargin{i+1},'upperstep')
+                mulmat = [1,1,1,1,0,0,0,1;
+                          1,0,0,0,0,0,0,0;
+                          0,1,1,1,0,0,1,1;
+                          1,0,0,0,0,0,0,0;
+                          0,0,1,1,0,1,1,1;
+                          1,0,0,0,0,0,0,0;
+                          0,0,0,1,1,1,1,1;
+                          1,0,0,0,0,0,0,0]; 
+            elseif strcmp(varargin{i+1},'upperstep2')
+                mulmat = [0,1,0,1,0,0,1,1;
+                          1,0,0,0,0,0,0,0;
+                          1,0,1,1,0,1,1,1;
+                          1,0,0,0,0,0,0,0;
+                          0,1,1,1,1,0,1,1;
+                          1,0,0,0,0,0,0,0;
+                          0,0,1,1,0,1,0,1;
+                          1,0,0,0,0,0,0,0];
+            elseif strcmp(varargin{i+1},'upperstep3')
+                mulmat = [0,0,1,1,0,1,1,1;
+                          1,0,0,0,0,0,0,0;
+                          0,1,1,1,1,0,0,1;
+                          1,0,0,0,0,0,0,0;
+                          0,1,0,1,0,0,1,1;
+                          1,0,0,0,0,0,0,0;
+                          1,0,1,1,0,1,1,1;
+                          1,0,0,0,0,0,0,0];
+            elseif strcmp(varargin{i+1},'redopt')
+                mulmat = [1,0,0,1,1,0,0,0;
+                          0,1,1,0,1,0,0,0;
+                          1,0,1,0,0,1,1,0;
+                          0,0,1,1,0,1,0,0;
+                          0,0,1,1,0,0,1,1;
+                          0,0,0,0,1,1,0,1;
+                          0,1,0,1,0,1,1,0;
+                          1,1,0,0,0,0,0,1];
+            elseif strcmp(varargin{i+1},'niropt')
+                mulmat = [1,0,0,1,0,1,0,1;
+                          1,1,0,0,1,0,0,0;
+                          0,1,1,1,0,1,0,0;
+                          0,0,0,1,1,0,1,0;
+                          0,0,1,0,1,0,0,1;
+                          0,0,0,0,1,1,1,0;
+                          1,0,1,0,0,0,1,0;
+                          0,1,0,0,0,0,1,1];
             else
                 error('no such multiplexing pattern')
             end
@@ -120,7 +183,7 @@ for i = 1:length(color)
         case 'a'
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*alltable(1:no_led)'))-'0';
         case 'n'
-            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = zeros(no_led^2,no_led);
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = zeros(no_led^2,no_led/2);
         case 'x'
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*randomtable(1:no_led)'))-'0';
         otherwise

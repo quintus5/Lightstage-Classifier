@@ -408,19 +408,39 @@ nirmn = sort(nirmn);
 
 %% test stepping light upper and lower
 bit = 65535;close all;clear immn imvar im;
-myFolder = 'C:\Users\user\Pictures\basler\testimage\ustep2309ms31g122';
+myFolder = 'C:\Users\user\Pictures\basler\testimage\lstep2709ms30g14';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
 for i = 1:length(jpegFiles)
     baseFileName = jpegFiles(i).name;
     fullFileName = fullfile(myFolder, baseFileName);
-    im{i} = (bitshift(imread(fullFileName),-6));
-%     immn(i) = median(im(:));
-%     imvar(i) = var(double(im(:)));
+    im = (bitshift(imread(fullFileName),-6));
+    immn(i) = mean(im(:));
+    imvar(i) = var(double(im(:)));
 end
 %%
 clear redmn grnmn blumn nirmn redvr grnvr bluvr nirvr
+for k = 1:5
+    redmn(k)    =  mean(immn(k:5:250));
+    redmn(k+5)  =  mean(immn(k+250:5:500));
+    redvr(k)    =  mean(imvar(k:5:250));
+    redvr(k+5)  =  mean(imvar(k+250:5:500));
+%     grnmn(k)    =  mean(immn(k+500:5:750));
+%     grnmn(k+5)  =  mean(immn(k+750:5:1000));
+%     grnvr(k)    =  mean(imvar(k+500:5:750));
+%     grnvr(k+5)  =  mean(imvar(k+750:5:1000));
+%     blumn(k)    =  mean(immn(k+1000:5:1250));
+%     blumn(k+5)  =  mean(immn(k+1250:5:1500));
+%     bluvr(k)    =  mean(imvar(k+1000:5:1250));
+%     bluvr(k+5)  =  mean(imvar(k+1250:5:1500));
+%     nirmn(k)    =  mean(immn(k+1500:5:1750));
+%     nirmn(k+5)  =  mean(immn(k+1750:5:2000));
+%     nirvr(k)    =  mean(imvar(k+1500:5:1750));
+%     nirvr(k+5)  =  mean(imvar(k+1750:5:2000));
+end
+%%
 for k = 1:8
+
     redmn(k)    =  median(immn(k:8:160));
     redmn(k+8)  =  median(immn(k+160:8:320));
     redmn(k+16) =  median(immn(k+320:8:480));
@@ -449,15 +469,16 @@ for k = 1:8
     nirvr(k+8)  = median(imvar(k+1600:8:1760));
     nirvr(k+16) = median(imvar(k+1760:8:1920));
 end
-for k = 1:4
-    rmn(k) = mean(redmn(k:4:24));
-    gmn(k) = mean(grnmn(k:4:24));
-    bmn(k) = mean(blumn(k:4:24));
-    nmn(k) = mean(nirmn(k:4:24));
-    rvr(k) = mean(redvr(k:4:24));
-    gvr(k) = mean(grnvr(k:4:24));
-    bvr(k) = mean(bluvr(k:4:24));
-    nvr(k) = mean(nirvr(k:4:24));
+%%
+for k = 1:5
+    rmn(k) = mean(redmn(k:5:10));
+    gmn(k) = mean(grnmn(k:5:10));
+    bmn(k) = mean(blumn(k:5:10));
+    nmn(k) = mean(nirmn(k:5:10));
+    rvr(k) = mean(redvr(k:5:10));
+    gvr(k) = mean(grnvr(k:5:10));
+    bvr(k) = mean(bluvr(k:5:10));
+    nvr(k) = mean(nirvr(k:5:10));
 end
 %%
 subplot(221);
@@ -498,24 +519,24 @@ sgtitle('Mean Across 6 pattern with 12dB gain 31ms exp');
 upperlim = max(redvr);
 figure;
 subplot(2,3,1);
-plot(redmn(1:4),redvr(1:4),'.');ylim([0,upperlim]);%hold on;
+plot(redmn(1:5),redvr(1:5),'.');ylim([0,upperlim]);%hold on;
 xlabel('Mean');ylabel('Variance');title('pat 1');grid
 subplot(2,3,2);
-plot(redmn(5:8),redvr(5:8),'s');ylim([0,upperlim]);
+plot(redmn(6:10),redvr(6:10),'s');ylim([0,upperlim]);
 xlabel('Mean');ylabel('Variance');title('pat 2');grid
-subplot(2,3,3);
-plot(redmn(9:12),redvr(9:12),'^');ylim([0,upperlim]);
-xlabel('Mean');ylabel('Variance');title('pat 3');grid
-subplot(2,3,4);
-plot(redmn(13:16),redvr(13:16),'o');ylim([0,upperlim]);
-xlabel('Mean');ylabel('Variance');title('pat 4');grid
-subplot(2,3,5);
-plot(redmn(17:20),redvr(17:20),'v');ylim([0,upperlim]);
-xlabel('Mean');ylabel('Variance');title('pat 5');grid
-subplot(2,3,6);
-plot(redmn(21:24),redvr(21:24),'<');ylim([0,upperlim]);
-xlabel('Mean');ylabel('Variance');title('pat 6');grid
-sgtitle('Red')
+% subplot(2,3,3);
+% plot(redmn(9:12),redvr(9:12),'^');ylim([0,upperlim]);
+% xlabel('Mean');ylabel('Variance');title('pat 3');grid
+% subplot(2,3,4);
+% plot(redmn(13:16),redvr(13:16),'o');ylim([0,upperlim]);
+% xlabel('Mean');ylabel('Variance');title('pat 4');grid
+% subplot(2,3,5);
+% plot(redmn(17:20),redvr(17:20),'v');ylim([0,upperlim]);
+% xlabel('Mean');ylabel('Variance');title('pat 5');grid
+% subplot(2,3,6);
+% plot(redmn(21:24),redvr(21:24),'<');ylim([0,upperlim]);
+% xlabel('Mean');ylabel('Variance');title('pat 6');grid
+% sgtitle('Red')
 
 %%
 
@@ -765,7 +786,7 @@ jpegFiles = dir(filePattern);
 for i = 1:length(jpegFiles)
     baseFileName = jpegFiles(i).name;
     fullFileName = fullfile(myFolder, baseFileName);
-    im = (bitshift(imread(fullFileName),-6));
+    im = double(bitshift(imread(fullFileName),-6))/1022;
     imvar(i) = var(double(im(:)));
     immn(i) = mean(im(:));
 end
@@ -783,7 +804,7 @@ legend('0db gain','12db gain','18db gain');
 title('Black Level (64,128,192,256)');
 
 
-%%
+%% ignore this
 bit = 65535;close all;
 myFolder = 'D:\Tailong';
 filePattern = fullfile(myFolder, '*.PNG');
@@ -798,3 +819,179 @@ for i = 33:length(jpegFiles)
     name = ['ls',num2str(i-32),'.png'];
     imwrite(rim(:,:,i-32),name);
 end
+%% per pixel mean and variance analysis
+clear immn imvar im impixm impixv
+bit = 65535;close all;
+myFolder = 'C:\Users\user\Pictures\basler\testimage\lstep2709ms30g14';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+for i = 1:length(jpegFiles)
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+    im(:,:,i) = double(bitshift(imread(fullFileName),-6));
+%     imagesc(im(:,:,i));
+%     pause(0.5);
+end
+%%
+figure;
+subplot(1,5,1);imagesc(im(:,:,1));
+subplot(1,5,2);imagesc(im(:,:,2));
+subplot(1,5,3);imagesc(im(:,:,3));
+subplot(1,5,4);imagesc(im(:,:,4));
+subplot(1,5,5);imagesc(im(:,:,5));
+figure
+subplot(1,5,1);imagesc(im(:,:,6));
+subplot(1,5,2);imagesc(im(:,:,7));
+subplot(1,5,3);imagesc(im(:,:,8));
+subplot(1,5,4);imagesc(im(:,:,9));
+subplot(1,5,5);imagesc(im(:,:,10));
+%%
+final = []; %             im per pat
+start = []; %       im per mat |  im per mat
+for p = 1:8 %               v  v   v
+    final = [final,repmat(p*5*50,1,5)];
+    start = [start,repmat((p-1)*5*49,1,5)];
+end
+%%
+for k = 1:40 % image per 2 patterns
+    for r = 1:96
+    for c = 1:96
+        impixm(r,c,k) = median(im(r,c,start(k)+k:5:final(k)));
+        impixv(r,c,k) = var(double(im(r,c,start(k)+k:5:final(k))));
+    end
+    end
+%     imm(:,:,k) = dyaddown(impixm(:,:,k),'c');
+%     imv(:,:,k) = dyaddown(impixv(:,:,k),'c');
+    imm(:,:,k) = imresize(impixm(:,:,k),[1,96]);
+    imv(:,:,k) = imresize(impixv(:,:,k),[1,96]);
+    subplot(1,2,1)
+    imagesc(imm(:,:,k));
+    subplot(1,2,2)
+    imagesc(imv(:,:,k));drawnow;
+end
+%% binning
+for i = 1:40
+   a = impixm(:,:,i);
+   a = a(:);
+%    a = sort(a(:));
+   b = impixv(:,:,i);
+   b = b(:);
+%    b = sort(b(:));
+   for j = 1:10       
+        amn(i,j) = mean(a(1+(j-1)*921:1+j*921));
+        avr(i,j) = mean(b(1+(j-1)*921:1+j*921));
+   end
+end
+%%
+% mean per pixel
+for i = 1:40
+    pixmn(i,:) = reshape(impixm(:,:,i),[1,96^2]);
+    pixvr(i,:) = reshape(impixv(:,:,i),[1,96^2]);
+%     subplot(3,8,i)
+%     plot(pixmn(i,:),pixvr(i,:),'.');xlim([0,500]);ylim([0,600]);grid
+%     xlabel('Mean');ylabel('\sigma^2');
+end
+% sgtitle('Var vs Mean per pixel')
+
+redmn = mean(pixmn,2);
+redvr = mean(pixvr,2);
+%%
+subplot(221);
+imagesc((impixv(:,:,4)));colorbar;caxis([0,500])
+subplot(222);
+imagesc((impixv(:,:,3)));colorbar;caxis([0,500])
+subplot(223);
+imagesc((impixv(:,:,2)));colorbar;caxis([0,500])
+subplot(224);
+imagesc((impixv(:,:,1)));colorbar;caxis([0,500])
+figure;
+subplot(221);
+imagesc((impixm(:,:,4)));colorbar;caxis([280,380])
+subplot(222);
+imagesc((impixm(:,:,3)));colorbar;caxis([200,300])
+subplot(223);
+imagesc((impixm(:,:,2)));colorbar;caxis([120,220])
+subplot(224);
+imagesc((impixm(:,:,1)));colorbar;caxis([60,160])
+%%
+bmn = reshape(amn(1:10,:),1,100);
+bvr = reshape(avr(1:10,:),1,100);
+for o = 1:10
+   plot(amn(o,:),avr(o,:),'.');hold on; 
+end
+%%
+for o = 1:2
+    subplot(2,1,o)
+    plot((pixmn(1+5*(o-1),:)),(pixvr(1+5*(o-1),:)),'.','MarkerSize',2);hold on;
+    plot((pixmn(2+5*(o-1),:)),(pixvr(2+5*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(3+5*(o-1),:)),(pixvr(3+5*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(4+5*(o-1),:)),(pixvr(4+5*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(5+5*(o-1),:)),(pixvr(5+5*(o-1),:)),'.','MarkerSize',2);
+    plot(redmn(1+5*(o-1):5+5*(o-1)),redvr(1+5*(o-1):5+5*(o-1)),'o','MarkerSize',6,'MarkerFaceColor','k','MarkerEdgeColor','k');
+    legend('no light','1 Light','2 Lights','3 Lights','4 Lights','Average');
+    grid;xlabel('Mean');ylabel('\sigma^2');
+end
+sgtitle('Variance vs Mean of Red LED across 6 Illumination Patterns');
+%%
+for o = 7:12
+    subplot(2,3,o-6)
+    plot((pixmn(1+4*(o-1),:)),(pixvr(1+4*(o-1),:)),'.','MarkerSize',2);hold on;
+    plot((pixmn(2+4*(o-1),:)),(pixvr(2+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(3+4*(o-1),:)),(pixvr(3+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(4+4*(o-1),:)),(pixvr(4+4*(o-1),:)),'.','MarkerSize',2);
+    plot(redmn(1+4*(o-1):4+4*(o-1)),redvr(1+4*(o-1):4+4*(o-1)),'o','MarkerSize',6,'MarkerFaceColor','k','MarkerEdgeColor','k');
+    legend('1 Light','2 Lights','3 Lights','4 Lights','Average');
+    grid;xlabel('Mean');ylabel('\sigma^2');ylim([0,600])
+end
+sgtitle('Variance vs Mean of Green LED across 6 Illumination Patterns');
+%%
+for o = 13:18
+    subplot(2,3,o-12)
+    plot((pixmn(1+4*(o-1),:)),(pixvr(1+4*(o-1),:)),'.','MarkerSize',2);hold on;
+    plot((pixmn(2+4*(o-1),:)),(pixvr(2+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(3+4*(o-1),:)),(pixvr(3+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(4+4*(o-1),:)),(pixvr(4+4*(o-1),:)),'.','MarkerSize',2);
+    plot(redmn(1+4*(o-1):4+4*(o-1)),redvr(1+4*(o-1):4+4*(o-1)),'o','MarkerSize',6,'MarkerFaceColor','k','MarkerEdgeColor','k');
+    legend('1 Light','2 Lights','3 Lights','4 Lights','Average');
+    grid;xlabel('Mean');ylabel('\sigma^2');ylim([0,800])
+end
+sgtitle('Variance vs Mean of Blue LED across 6 Illumination Patterns');
+%%
+for o = 19:24
+    subplot(2,3,o-18)
+    plot((pixmn(1+4*(o-1),:)),(pixvr(1+4*(o-1),:)),'.','MarkerSize',2);hold on;
+    plot((pixmn(2+4*(o-1),:)),(pixvr(2+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(3+4*(o-1),:)),(pixvr(3+4*(o-1),:)),'.','MarkerSize',2);
+    plot((pixmn(4+4*(o-1),:)),(pixvr(4+4*(o-1),:)),'.','MarkerSize',2);
+    plot(redmn(1+4*(o-1):4+4*(o-1)),redvr(1+4*(o-1):4+4*(o-1)),'o','MarkerSize',6,'MarkerFaceColor','k','MarkerEdgeColor','k');
+    legend('1 Light','2 Lights','3 Lights','4 Lights','Average');
+    grid;xlabel('Mean');ylabel('\sigma^2');ylim([0,1000]);xlim([0,1000])
+end
+sgtitle('Variance vs Mean of NIR LED across 6 Illumination Patterns');
+%%
+for a = 1:4
+    redm(a) = mean(redmn(a:8:24));
+    grnm(a) = mean(redmn(a+24:8:48));
+    blum(a) = mean(redmn(a+48:8:72));
+    nirm(a) = mean(redmn(a+72:8:96));
+    redv(a) = mean(redvr(a:8:24));
+    grnv(a) = mean(redvr(a+24:8:48));
+    bluv(a) = mean(redvr(a+48:8:72));
+    nirv(a) = mean(redvr(a+72:8:96));
+    
+end
+subplot(221);
+plot(redm,redv,'.','MarkerSize',9);grid;xlabel('Mean');ylabel('\sigma^2');
+title('Red');ylim([0,200]);xlim([0,300])
+subplot(222);
+plot(grnm,grnv,'.','MarkerSize',9);grid;xlabel('Mean');ylabel('\sigma^2');
+title('Green');ylim([0,200]);xlim([0,300])
+subplot(223);
+plot(blum,bluv,'.','MarkerSize',9);grid;xlabel('Mean');ylabel('\sigma^2');
+title('Blue');ylim([0,300]);xlim([0,500])
+subplot(224);
+plot(nirm,nirv,'.','MarkerSize',9);grid;xlabel('Mean');ylabel('\sigma^2');
+title('NIR');ylim([0,500]);xlim([0,900])
+sgtitle('Average Intensity Mean vs Variance across 4 LEDs')
+%%
+

@@ -1,17 +1,18 @@
 % sequenceTable = howtolight(8,'i','LightPattern','m','Multiplexingstyle','all');
 % sequenceTable = howtolight(8,'rgbi','LightPattern','mmmm','Multiplexingstyle','step');
-images = 20;
+images = 4;
 % writeDigitalPin(ard,'D8',0);
 % writeDigitalPin(ard,'D8',1);pause(0.2);
 % writeDigitalPin(ard,'D8',0);
-col = 'rgbi';
+col = 'w';
 % pat = ['m','m','m','m'];
-stl = {'upperstep','upperstep2','upperstep3'};
-pause(10);
+stl = {'optmse'};
+% stl = {'lowerstep','lowerstep2','lowerstep3','lowerstep4'};
+% pause(10);
 tic;
-for j = 1:length(col)
-    for o = 1:3
-        sequenceTable = howtolight(8,col(j),'LightPattern','m','Multiplexingstyle',stl{o});
+for j = 1:length(stl)
+    for o = 1:length(col)
+        sequenceTable = howtolight(8,col(o),'LightPattern','m','Multiplexingstyle',stl{j});
         for k = 1:images
             for count = 1:size(sequenceTable,1)
                 write(reg, sequenceTable(count,:),'uint32');
@@ -95,8 +96,13 @@ toc;
 
 % t1209 = 45000
 
-
 % r = 390ms
 % g = 340ms
 % b = 270ms
 %i = 180ms
+
+
+
+% single illum 200 ms 15db
+% i mux 80 ms 15db
+% rgb mux 200ms

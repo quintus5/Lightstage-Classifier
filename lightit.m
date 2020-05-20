@@ -1,30 +1,65 @@
 % sequenceTable = howtolight(8,'i','LightPattern','m','Multiplexingstyle','all');
 % sequenceTable = howtolight(8,'rgbi','LightPattern','mmmm','Multiplexingstyle','step');
-images = 4;
+images = 1;
 % writeDigitalPin(ard,'D8',0);
 % writeDigitalPin(ard,'D8',1);pause(0.2);
 % writeDigitalPin(ard,'D8',0);
-col = 'w';
+col = 'rgbwi';
+% 'hvoqzk'
 % pat = ['m','m','m','m'];
 stl = {'optmse'};
 % stl = {'lowerstep','lowerstep2','lowerstep3','lowerstep4'};
 % pause(10);
-tic;
-for j = 1:length(stl)
+% for c = 1:images
+% for j = 1:length(stl)
     for o = 1:length(col)
-        sequenceTable = howtolight(8,col(o),'LightPattern','m','Multiplexingstyle',stl{j});
-        for k = 1:images
-            for count = 1:size(sequenceTable,1)
-                write(reg, sequenceTable(count,:),'uint32');
-                writeDigitalPin(ard,'D8',1);
-                writeDigitalPin(ard,'D8',0);
-                pause(0.05);
-            end
+        sequenceTable = howtolight(8,col(o),'LightPattern','m','Multiplexingstyle','newmat');
+        for count = 1:size(sequenceTable,1)-4
+            write(reg, sequenceTable(count,:),'uint32');
+            writeDigitalPin(ard,'D8',1);
+            writeDigitalPin(ard,'D8',0);
+            pause(0.02);
         end
     end
-end
-toc;
+% end
+%pause;
+beep
+% end
+%%
+sequenceTable = howtolight(8,'n','LightPattern','m','Multiplexingstyle','newmat');
+write(reg, sequenceTable(4,:),'uint32');
+%%
+% col = '1234567';
+% for i = 1:7
+%     sequenceTable = howtolight(8,col(i),'LightPattern','m','Multiplexingstyle','newmat');
+%     write(reg, sequenceTable(i,:),'uint32');
+%     writeDigitalPin(ard,'D8',1);
+%     writeDigitalPin(ard,'D8',0);
+%     pause(1);
+% end
 
+%%
+time = 0.04;
+for o = 1:length(col)
+    sequenceTable = howtolight(8,col(o),'LightPattern','m','Multiplexingstyle','newmat');
+    for count = 1:size(sequenceTable,1)-1
+        write(reg, sequenceTable(count,:),'uint32');
+        writeDigitalPin(ard,'D8',1);
+        writeDigitalPin(ard,'D8',0);
+        pause(time);
+    end
+end
+%pause;
+beep
+
+% toc;
+% col1 = 332
+% col2 = 331
+% col3 = 2211
+% col4 = 32232
+% col5 = 33333
+% col6 = 32333
+% col 7 = 323223
 % dist lens to object - 19cm
 % cam setting - f11
 % operation orange 1 - fake upside,downside,up to right,up to front,up to

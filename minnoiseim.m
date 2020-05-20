@@ -1,53 +1,41 @@
-myFolder = 'E:\work\2019\matlab\basler\paper\test2502\gaprf1_4100ms';
+myFolder = 'C:\Users\user\Pictures\basler\paper\test0805\nonoise';
 filePattern = fullfile(myFolder, '*.tiff');
 jpegFiles = dir(filePattern);
-
-% create random matrix
-type1 = perms([0,0,0,0,0,0,1,1]);
-type2 = perms([0,0,0,0,0,1,1,1]);
-type3 = perms([0,0,0,0,1,1,1,1]);
-type4 = perms([0,0,0,1,1,1,1,1]);
-type8 = perms([1,1,1,1,1,1,1,1]);
-type1 = unique(type1,'rows');
-type2 = unique(type2,'rows');
-type3 = unique(type3,'rows');
-type4 = unique(type4,'rows');
-type8 = unique(type8,'rows');
-ledtype = {type1,type2,type3,type4,type8};
+destfolder = 'C:\Users\user\Pictures\basler\paper\test0805\nononoise';
 
 % how many photo per pose
-ppp = 50;
+ppp = 20;
 %%
 
-for pose = 0:10
+for pose = 0:1 %rmb to change
     
 clear im imul imrnew imgnew imbnew iminew;
 
-for i = 1:1600
-    baseFileName = jpegFiles(1600*pose+i).name;
+for i = 1:80  %rmb to change
+    baseFileName = jpegFiles(640*pose+i).name;
     fullFileName = fullfile(myFolder, baseFileName);
     im(:,:,i) = imread(fullFileName);
-end
+end 
 
 % average
-for z = 1:8
+for z = 1:1
     red1(:,:,z) = sum(im(:,:,z:8:ppp*8),3)/ppp;
     grn1(:,:,z) = sum(im(:,:,z+ppp*8:8:ppp*8*2),3)/ppp;
     blu1(:,:,z) = sum(im(:,:,z+ppp*8*2:8:ppp*8*3),3)/ppp;
     nir1(:,:,z) = sum(im(:,:,z+ppp*8*3:8:ppp*8*4),3)/ppp;
     
     
-    namer = ['c1_li',num2str(z),'r_po',num2str(pose),'.tiff'];
-    nameg = ['c2_li',num2str(z),'g_po',num2str(pose),'.tiff'];
-    nameb = ['c3_li',num2str(z),'b_po',num2str(pose),'.tiff'];
-    namei = ['c4_li',num2str(z),'i_po',num2str(pose),'.tiff'];
-    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\noisefreereal', namer);
+    namer = ['c1r_p',num2str(pose+11),'_l',num2str(z),'.tiff'];
+    nameg = ['c2g_p',num2str(pose+11),'_l',num2str(z),'.tiff'];
+    nameb = ['c3b_p',num2str(pose+11),'_l',num2str(z),'.tiff'];
+    namei = ['c4i_p',num2str(pose+11),'_l',num2str(z),'.tiff'];
+    fullFileName = fullfile(destfolder, namer);
     imwrite(uint16(red1(:,:,z)),fullFileName);
-    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\noisefreereal', nameg);
+    fullFileName = fullfile(destfolder, nameg);
     imwrite(uint16(grn1(:,:,z)),fullFileName);    
-    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\noisefreereal', nameb);
+    fullFileName = fullfile(destfolder, nameb);
     imwrite(uint16(blu1(:,:,z)),fullFileName);
-    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\noisefreereal', namei);
+    fullFileName = fullfile(destfolder, namei);
     imwrite(uint16(nir1(:,:,z)),fullFileName);
 end
 
@@ -106,3 +94,5 @@ end
 % end
 % 
 % end
+
+

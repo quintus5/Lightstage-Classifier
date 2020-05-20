@@ -2,63 +2,88 @@
 clear;
 bit = 1022;
 %%
-myFolder = 'C:\Users\user\Pictures\basler\classtest\apple\real_rgbpylwi_p';
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\gar_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
-realajPeg = dir(filePattern);
-realajPeg(25:56) = [];
-% realjPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\apple\fake_rgbpylwi_p';
+realjPeg_ga = dir(filePattern);
+count_gar = (length(realjPeg_ga)/8/5);
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\gar_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
-fakeajPeg = dir(filePattern);
-fakeajPeg(25:56) = [];
-% fakejPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\paprika\real_rgbpylwi_p';
+fakejPeg_ga = dir(filePattern);
+count_gaf = (length(fakejPeg_ga)/8/5);
+
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\rar_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
-realpjPeg = dir(filePattern);
-realpjPeg(25:56) = [];
-% realjPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\paprika\fake_rgbpylwi_p';
+realjPeg_ra = dir(filePattern);
+count_rar = (length(realjPeg_ra)/8/5);
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\raf_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
-fakepjPeg = dir(filePattern);
-fakepjPeg(25:56) = [];
-% fakejPeg(end-39:end) = [];
+fakejPeg_ra = dir(filePattern);
+count_raf = (length(fakejPeg_ra)/8/5);
+
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\ggr_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg_gg = dir(filePattern);
+count_ggr = (length(realjPeg_gg)/8/5);
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\ggf_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+fakejPeg_gg = dir(filePattern);
+count_ggf = (length(fakejPeg_gg)/8/5);
+
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\bnr_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg_bn = dir(filePattern);
+count_bnr = (length(realjPeg_bn)/8/5);
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\bnf_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+fakejPeg_bn = dir(filePattern);
+count_bnf = (length(fakejPeg_bn)/8/5);
+
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\orr_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg_or = dir(filePattern);
+count_orr = (length(realjPeg_or)/8/5);
+myFolder = 'C:\Users\user\Pictures\basler\paper\classtest\s\orf_rgbwi_p';
+filePattern = fullfile(myFolder, '*.tiff');
+fakejPeg_or = dir(filePattern);
+count_orf = (length(fakejPeg_or)/8/5);
 %%
-for c = 0:3
-for i = 1+c*8:length(realajPeg)-(24-c*8)
+for c = 0
+for i = 1:length(realajPeg)
     baseFileName = realajPeg(i).name;
     fullFileName = fullfile(realajPeg(i).folder, baseFileName);
     im = double(bitshift(imread(fullFileName),-6))/bit;
-    a1 = imresize(im,[20,20]);     % resize
-    imagesc(a1);pause(0.001);
-    [feata(i,:),~] = extractHOGFeatures(a1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    realafeat(i,:) = [feata(i,:),1];
+    a1 = imresize(im,[100,100]);     % resize
+    [feata(i,:),~] = extractHOGFeatures(a1,'Cellsize',[2,2],'BlockSize',[4,4]); 
 end
+% realafeat(i,:) = [feata(i,:)];
 %%
-for k = 1+c*8:length(fakeajPeg)-(24-c*8)
+for k = 1:length(fakeajPeg)
     baseFileName = fakeajPeg(k).name;
     fullFileName = fullfile(fakeajPeg(k).folder, baseFileName);
     imt = double(bitshift(imread(fullFileName),-6))/bit;
-    b1 = imresize(imt,[20,20]);
-    [featta(k,:),~] = extractHOGFeatures(b1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    fakeafeat(k,:) = [featta(k,:),0];
+    b1 = imresize(imt,[100,100]);
+    [featta(k,:),~] = extractHOGFeatures(b1,'Cellsize',[2,2],'BlockSize',[4,4]);   
 end
+% fakeafeat(k,:) = [featta(k,:)];
 %%
-for k = 1+c*8:length(realpjPeg)-(24-c*8)
+for k = 1:length(realpjPeg)
     baseFileName = realpjPeg(k).name;
     fullFileName = fullfile(realpjPeg(k).folder, baseFileName);
     imt = double(bitshift(imread(fullFileName),-6))/bit;
     c1 = imresize(imt,[20,20]);
+    imagesc(c1);pause(0.001);
     [featp(k,:),~] = extractHOGFeatures(c1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    realpfeat(k,:) = [featp(k,:),2];
+%     realpfeat(k,:) = [featp(k,:),2];
 end
 %%
-for k = 1+c*8:length(fakepjPeg)-(24-c*8)
+for k = 1:length(fakepjPeg)
     baseFileName = fakepjPeg(k).name;
     fullFileName = fullfile(fakepjPeg(k).folder, baseFileName);
     imt = double(bitshift(imread(fullFileName),-6))/bit;
     b1 = imresize(imt,[20,20]);
+    imagesc(b1);pause(0.01);
     [feattp(k,:),~] = extractHOGFeatures(b1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    fakepfeat(k,:) = [feattp(k,:),3];
+%     fakepfeat(k,:) = [feattp(k,:),3];
 end
 %%
 for epoch = 1:50

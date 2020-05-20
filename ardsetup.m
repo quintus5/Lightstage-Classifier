@@ -1,6 +1,6 @@
 % ard setup
 % only need to do once
-clc;clear;
+% clc;clear;
 
 % init arduino
 ard = arduino('COM3', 'Uno', 'Libraries', 'ShiftRegister');

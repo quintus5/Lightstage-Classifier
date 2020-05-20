@@ -1,4 +1,14 @@
 clear;
+mulmat = [1,1,1,0,0,1,0,0;
+          0,1,0,0,1,1,1,0;
+          0,0,1,0,1,1,0,1;
+          0,1,1,0,0,0,1,1;
+          1,0,0,1,1,0,1,1;
+          0,1,0,1,0,1,0,1;
+          0,1,1,1,1,0,0,0;
+          0,0,1,1,0,1,1,0];
+order = nchoosek(1:8,4);
+
 %  mulmat = single(repmat([1,1,1,0,0,1,0,0;
 %                   0,1,0,0,1,1,1,0;
 %                   0,0,1,0,1,1,0,1;
@@ -14,48 +24,38 @@ clear;
 %     '.tiff','LabelSource','foldernames');
 
 %%
-myFolder = 'C:\Users\user\Pictures\basler\classtest\apple\real_rgbpylwi_p';
+myFolder = 'C:\Users\user\Pictures\basler\classtest\orange1\real_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
 realjPeg = dir(filePattern);
 % realjPeg(25:56) = [];
 % realjPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\apple\fake_rgbpylwi_p';
+myFolder = 'C:\Users\user\Pictures\basler\classtest\orange1\fake_rgbwi_p';
 filePattern = fullfile(myFolder, '*.tiff');
 fakejPeg = dir(filePattern);
 % fakejPeg(25:56) = [];
 % fakejPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\paprika\real_rgbpylwi_p';
-filePattern = fullfile(myFolder, '*.tiff');
-realjPeg = dir(filePattern);
-% realjPeg(25:56) = [];
-% realjPeg(end-39:end) = [];
-myFolder = 'C:\Users\user\Pictures\basler\classtest\paprika\fake_rgbpylwi_p';
-filePattern = fullfile(myFolder, '*.tiff');
-fakejPeg = dir(filePattern);
-% fakejPeg(25:56) = [];
-% fakejPeg(end-39:end) = [];
+
 %%
 for i = 1:length(realjPeg)
     baseFileName = realjPeg(i).name;
     fullFileName = fullfile(realjPeg(i).folder, baseFileName);
-    im = double(bitshift(imread(fullFileName),-6));
-    a1 = imresize(im,[100,100]);     % resize
+    im(:,:,i) = (bitshift(imread(fullFileName),-6));
+%     a1 = imresize(im,[100,100]);     % resize
 %     color(i,:) = reshape(a1,1,[]);
-
-    [feat(i,:),~] = extractHOGFeatures(a1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    realfeat(i,:) = [feat(i,:),1];
+%     [feat(i,:),~] = extractHOGFeatures(a1,'Cellsize',[4,4],'BlockSize',[4,4]);
+%     realfeat(i,:) = [feat(i,:),1];
 %     label{i} = 'real';
 end
 %%
 for k = 1:length(fakejPeg)
     baseFileName = fakejPeg(k).name;
     fullFileName = fullfile(fakejPeg(k).folder, baseFileName);
-    imt = double(bitshift(imread(fullFileName),-6));
-    b1 = imresize(imt,[100,100]);
+    imt(:,:,k) = (bitshift(imread(fullFileName),-6));
+%     b1 = imresize(imt,[100,100]);
 %     color(k,:) = reshape(b1,1,[]);
 %     spatial(k,:) = linspace(0,1,length(color(k,:)));
-    [featt(k,:),~] = extractHOGFeatures(b1,'Cellsize',[4,4],'BlockSize',[4,4]);
-    fakefeat(k,:) = [featt(k,:),0];
+%     [featt(k,:),~] = extractHOGFeatures(b1,'Cellsize',[4,4],'BlockSize',[4,4]);
+%     fakefeat(k,:) = [featt(k,:),0];
 %     label{i+k} = 'fake';
 end
 %%

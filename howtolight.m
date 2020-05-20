@@ -17,12 +17,30 @@ redtable =   [8,4,8,4,8,8,2,2];
 bluetable =  [2,1,2,1,2,2,8,8];
 greentable = [4,2,4,2,4,4,4,4];
 NIRtable =   [1,8,1,8,1,1,1,1];
+
 yellowtable = greentable+redtable;
 lightbtable = greentable+bluetable;
-whitetable = greentable+bluetable+redtable;
 purpletable = bluetable+redtable;
+nirgrntable = greentable+NIRtable;
+nirredtable = redtable+NIRtable;
+nirblutable = bluetable+NIRtable;
+
+whitetable = greentable+bluetable+redtable;
+gbitable = greentable+bluetable+NIRtable;
+gritable = greentable+redtable+NIRtable;
+britable = bluetable+redtable+NIRtable;
+
 alltable = greentable+bluetable+redtable+NIRtable;
+
 randomtable = ceil(rand(1,8)*8);
+
+customtable1 = [2,4,4,2,4,4,4,8];
+customtable2 = [2,2,8,8,8,4,8,8];
+customtable3 = [4,1,8,1,8,8,8,2];
+customtable4 = [1,2,4,4,2,2,2,8];
+customtable5 = [2,1,2,1,2,2,8,8];
+customtable6 = [8,1,4,2,2,8,2,2];
+customtable7 = [4,2,4,1,8,4,2,8];
 
 %check error
 if mod(no_led,1) || no_led > 9 || no_led <= 0
@@ -53,15 +71,6 @@ if nargin > 2
                 mulmat = eye(no_led);
             elseif strcmp(varargin{i+1},'all')
                 mulmat = ones(no_led);
-            elseif strcmp(varargin{i+1},'step')
-                mulmat = [1,1,1,1,0,0,0,0;
-                          0,0,0,0,1,1,1,1;
-                          0,1,1,1,0,0,0,0;
-                          0,0,0,0,0,1,1,1;
-                          0,0,1,1,0,0,0,0;
-                          0,0,0,0,0,0,1,1;
-                          0,0,0,1,0,0,0,0;
-                          0,0,0,0,0,0,0,1];
             elseif strcmp(varargin{i+1},'stepall')
                 mulmat = [1,1,1,1,1,1,1,1;
                           0,0,0,0,1,1,1,1;
@@ -152,6 +161,15 @@ if nargin > 2
                           0,1,0,1,0,1,0,1;
                           0,1,1,1,1,0,0,0;
                           0,0,1,1,0,1,1,0];
+            elseif strcmp(varargin{i+1},'newmat')
+                mulmat = [1,0,1,1,1,1,1,1;
+                          0,1,0,0,1,1,1,1;
+                          1,0,0,1,1,1,1,1;
+                          1,0,0,1,1,1,1,1;
+                          1,1,1,1,1,1,1,1;
+                          1,0,0,0,1,1,1,1;
+                          0,0,1,1,1,1,1,1;
+                          1,1,1,1,1,1,1,1];
             else
                 error('no such multiplexing pattern')
             end
@@ -191,11 +209,35 @@ for i = 1:length(color)
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*purpletable(1:no_led)'))-'0';
         case 'a'
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*alltable(1:no_led)'))-'0';
+        case 'h'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*nirgrntable(1:no_led)'))-'0';
+        case 'v'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*nirredtable(1:no_led)'))-'0';
+        case 'o'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*nirblutable(1:no_led)'))-'0';
+        case 'q'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*britable(1:no_led)'))-'0';
+        case 'z'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*gbitable(1:no_led)'))-'0';
+        case 'k'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*gritable(1:no_led)'))-'0';
         case 'n'
             table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = zeros(no_led^2,no_led/2);
-        case 'x'
-            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*randomtable(1:no_led)'))-'0';
-        otherwise
+        case '1'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable1(1:no_led)'))-'0';
+        case '2'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable2(1:no_led)'))-'0';
+        case '3'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable3(1:no_led)'))-'0';
+        case '4'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable4(1:no_led)'))-'0';
+        case '5'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable5(1:no_led)'))-'0';
+        case '6'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable6(1:no_led)'))-'0';
+        case '7'
+            table(i*no_led^2-(no_led^2-1):i*no_led^2,:) = double(dec2bin(code(i*no_led-(no_led-1):i*no_led,:).*customtable7(1:no_led)'))-'0';
+         otherwise
                 error(['color ', color(i),' does not exist']);
     end
 end

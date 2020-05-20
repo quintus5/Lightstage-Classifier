@@ -1071,3 +1071,562 @@ title('NIR');ylim([0,500]);xlim([0,900])
 sgtitle('Average Intensity Mean vs Variance across 4 LEDs')
 
 
+%%
+clear immn imvar im;
+close all;
+myFolder = 'E:\work\2019\matlab\basler\paper\test2502\gaprf1_4100ms';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+%%
+ti = imread('C:\Users\user\Pictures\basler\testimage\test1702\base4.tiff');
+ti = double(bitshift(ti,-6));
+ti(ti(:) < mean(ti(:))+var(ti(:))) = 0;
+%%
+for i = 1:800
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+    im(:,:,i) = double(bitshift(imread(fullFileName),-6));
+%     ima = imcrop(ima,[187,359,20,20]);
+%     imnew(:,:,i) =     ima/1023;
+%     ima(ima(:) > (mean(ima(:))+var(ima(:)))) = mean(ima(:));
+%     im(:,:,i) = ima;
+%     im = bitshift(imread(fullFileName));
+%     stdim = var(ima(:));
+%     subplot(1,2,1);
+%     imagesc(ima/1024);
+% %     ima = ima-ti;
+%     for r = 2:size(ima,1)
+%         for c = 2:size(ima,2)
+%             if ima(r,c) > ima(r,c-1)*2
+%                 ima(r,c) = ima(r-1,c-1);
+%             end
+%         end
+%     end
+%     im(:,:,i) = ima/1023;
+%     subplot(1,2,2);
+%     imagesc(ima/1024);
+%     pause(1);
+end
+
+%%
+% average image
+for z = 1:8
+    red1(:,:,z) = sum(im(:,:,z:8:400),3)/50/1022;
+    grn1(:,:,z) = sum(im(:,:,z+400:8:800),3)/50/1022;
+%     blu1(:,:,z) = sum(im(:,:,z+800:8:1200),3)/50/1022;
+%     nir1(:,:,z) = sum(im(:,:,z+1200:8:1600),3)/50/1022;
+end
+
+% for display
+for x = 1:8
+    subplot(2,2,1);
+    imagesc(red1(:,:,x));
+    subplot(2,2,2);
+    imagesc(grn1(:,:,x));
+%     subplot(2,2,3);
+%     imagesc(blu1(:,:,x));
+%     subplot(2,2,4);
+%     imagesc(nir1(:,:,x));
+    
+    pause(1);
+end
+
+%%
+% find easier pattern
+imred = im(:,:,1:8);
+mulmat = [1,1,1,0,0,1,0,0;
+          0,1,0,0,1,1,1,0;
+          0,0,1,0,1,1,0,1;
+          0,1,1,0,0,0,1,1;
+          1,0,0,1,1,0,1,1;
+          0,1,0,1,0,1,0,1;
+          0,1,1,1,1,0,0,0;
+          0,0,1,1,0,1,1,0];
+      
+bright = [0.7,0.2,1,0.9,1,0.9,0.7,0.2]*mulmat;
+imredre = reshape(red1,512*512,8);
+imul = imredre*mulmat;
+imul = imul./bright;
+imrednew = reshape(imul,512,512,8);
+
+imgre = reshape(grn1,512*512,8);
+imul = imgre*mulmat;
+imul = imul./bright;
+imgnew = reshape(imul,512,512,8);
+
+imbre = reshape(blu1,512*512,8);
+imul = imbre*mulmat;
+imul = imul./bright;
+imbnew = reshape(imul,512,512,8);
+
+for o = 1:8
+    subplot(1,4,1);
+    imshow(imrednew(:,:,o)*1.3424);
+    subplot(1,4,2);
+    imshow(imgnew(:,:,o)*1.4719);
+    subplot(1,4,3);
+    imshow(imbnew(:,:,o));
+    
+    imrgb(:,:,1) = imrednew(:,:,o)*1.3424;
+    imrgb(:,:,2) = imgnew(:,:,o)*1.4719;
+    imrgb(:,:,3) = imbnew(:,:,o);
+    subplot(1,4,4);
+
+    imshow(imrgb);
+    pause(1)
+end
+
+%%
+% random matrix matlab
+% simple with randi
+satfloor = [3,3,3,3,3,3,3,3];
+satceil = [5,5,5,5,5,5,5,5];
+for p = 1:8
+    mat(:,p) = randi([0,1],8,1);    %random column
+end
+%check same and number of light inside
+while(1) 
+    bits = floor(1+64*rand(1));
+    index = unique(floor(1+64*rand(1,bits)));
+    mat(index) = 1-mat(index);
+    mat1 = sum(mat,1);
+    %check mat condition
+    if cond(mat) < 1e2 && (sum((mat1 >= satfloor) & (mat1 <= satceil)) == 8)
+        break;
+    end
+end
+
+%%
+%red mean 0.4603
+% green 0.4198
+%blue 0.6179
+
+%%
+type1 = perms([0,0,0,0,0,0,1,1]);
+type2 = perms([0,0,0,0,0,1,1,1]);
+type3 = perms([0,0,0,0,1,1,1,1]);
+type4 = perms([0,0,0,1,1,1,1,1]);
+type8 = perms([1,1,1,1,1,1,1,1]);
+
+type1 = unique(type1,'rows');
+type2 = unique(type2,'rows');
+type3 = unique(type3,'rows');
+type4 = unique(type4,'rows');
+type8 = unique(type8,'rows');
+
+ledtype = {type1,type2,type3,type4,type8};
+
+for a = 1:5
+bright = [0.7,0.4,0.7,0.4,0.7,0.4,0.7,0.4]*ledtype{a}';
+
+imredre = reshape(red1,512*512,8);
+imul = imredre*ledtype{a}';
+imul = imul./bright;
+imrnew{a} = reshape(imul,512,512,size(ledtype{a},1));
+
+imgre = reshape(grn1,512*512,8);
+imul = imgre*ledtype{a}';
+imul = imul./bright;
+imgnew{a} = reshape(imul,512,512,size(ledtype{a},1));
+
+imbre = reshape(blu1,512*512,8);
+imul = imbre*ledtype{a}';
+imul = imul./bright;
+imbnew{a} = reshape(imul,512,512,size(ledtype{a},1));
+
+imire = reshape(nir1,512*512,8);
+imul = imire*ledtype{a}';
+imul = imul./bright;
+iminew{a} = reshape(imul,512,512,size(ledtype{a},1));
+end
+
+for o = 1:28
+%     subplot(1,3,1);
+    rim = imrnew{1};
+%     imshow(rim(:,:,o));
+%     subplot(1,3,2);
+    gim = imgnew{1};
+%     imshow(gim(:,:,o));
+%     subplot(1,3,3);
+    bim = imbnew{1};
+%     imshow(bim(:,:,o));
+%     pause(0.1)
+    iim = iminew{1};
+    
+    namer = ['red',num2str(o),'.tiff'];
+    nameg = ['grn',num2str(o),'.tiff'];
+    nameb = ['blu',num2str(o),'.tiff'];
+    namei = ['nir',num2str(o),'.tiff'];
+    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\killer1', namer);
+    imwrite(rim(:,:,o),fullFileName);
+    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\killer1', nameg);
+    imwrite(gim(:,:,o),fullFileName);    
+    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\killer1', nameb);
+    imwrite(bim(:,:,o),fullFileName);
+    fullFileName = fullfile('C:\Users\user\Pictures\basler\paper\killer1', namei);
+    imwrite(iim(:,:,o),fullFileName);
+end
+
+%%
+
+clear immn imvar im;
+close all;
+myFolder = 'C:\Users\user\Pictures\basler\paper\noisefree';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+
+for i = 1:length(jpegfiles)
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+    im(:,:,i) = double(bitshift(imread(fullFileName),-6));
+end
+
+% multiplex them
+
+% for k = 0:howmanyrealpic-1
+
+    % divide into each pose in row x pose for real fruit
+%     red1 = im(:,:,8*k+howmanyrealpic*0+1 :8*k+howmanyrealpic*0+8);
+%     grn1 = im(:,:,8*k+howmanyrealpic*8+1 :8*k+howmanyrealpic*8+8);
+%     blu1 = im(:,:,8*k+howmanyrealpic*16+1:8*k+howmanyrealpic*16+8);
+%     nir1 = im(:,:,8*k+howmanyrealpic*24+1:8*k+howmanyrealpic*24+8); 
+
+%     bright = brightness*ledtype{pattype}';
+    
+%     im1 = im(:,:,8*k+howmanyrealpic*0+1 :8*k+howmanyrealpic*0+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implex{k+1,1} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+%    
+%     im1 = im(:,:,8*k+howmanyrealpic*8+1 :8*k+howmanyrealpic*8+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implex{k+1,2} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+%    
+%     im1 = im(:,:,8*k+howmanyrealpic*16+1:8*k+howmanyrealpic*16+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implex{k+1,3} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+%     
+%     im1 = im(:,:,8*k+howmanyrealpic*24+1:8*k+howmanyrealpic*24+8); 
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implex{k+1,4} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+% end
+
+%% fake fruit
+% clear implexf imre
+ 
+% for k = 0:howmanyfakepic-1
+    
+%     red1f = imt(:,:,8*k+howmanyfakepic*0+1 :8*k+howmanyfakepic*0+8);
+%     grn1f = imt(:,:,8*k+howmanyfakepic*8+1 :8*k+howmanyfakepic*8+8);
+%     blu1f = imt(:,:,8*k+howmanyfakepic*16+1:8*k+howmanyfakepic*16+8);
+%     nir1f = imt(:,:,8*k+howmanyfakepic*24+1:8*k+howmanyfakepic*24+8); 
+
+%     im1 = imt(:,:,8*k+howmanyfakepic*0+1 :8*k+howmanyfakepic*0+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implexf{k+1,1} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+% 
+%     im1 = imt(:,:,8*k+howmanyfakepic*8+1 :8*k+howmanyfakepic*8+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implexf{k+1,2} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+% 
+%     im1 = imt(:,:,8*k+howmanyfakepic*16+1:8*k+howmanyfakepic*16+8);
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implexf{k+1,3} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+% 
+%     im1 = imt(:,:,8*k+howmanyfakepic*24+1:8*k+howmanyfakepic*24+8); 
+%     imre = reshape(im1,im_size*im_size,8);
+%     imul = imre*ledtype{pattype}';
+%     imul = imul./bright;
+%     implexf{k+1,4} = reshape(imul,im_size,im_size,size(ledtype{pattype},1));
+   
+% end
+% clear imul im1 imre
+% bright = brightness*ledtype{pattype}';
+
+
+%%
+myFolder = 'C:\Users\user\Pictures\basler\paper\test0316';
+filePattern = fullfile(myFolder, '*.tiff');
+jpegFiles = dir(filePattern);
+
+for i = 1:length(jpegFiles)
+    baseFileName = jpegFiles(i).name;
+    fullFileName = fullfile(myFolder, baseFileName);
+    im(:,:,i) = (bitshift(imread(fullFileName),-6));
+    ims(:,:,i) = imresize(im(:,:,i),[100,100])/1022;
+end
+%%
+mulmat = [1,1,1,0,0,1,0,0;
+          0,1,0,0,1,1,1,0;
+          0,0,1,0,1,1,0,1;
+          0,1,1,0,0,0,1,1;
+          1,0,0,1,1,0,1,1;
+          0,1,0,1,0,1,0,1;
+          0,1,1,1,1,0,0,0;
+          0,0,1,1,0,1,1,0];
+      
+testred = im(:,:,33:40);
+testred = reshape(testred,512*512,8);
+testreds = ims(:,:,33:40);
+testreds = reshape(testreds,100*100,[]);
+imul = double(testred)*mulmat;
+imuls = testreds*mulmat;
+% imwat = reshape(imul,512*512*8,1);
+imul = imul./max(imul,[],1);
+imuls = imuls./max(imuls,[],1);
+% imwat(imwat(:)>=1) = 1;
+% imwat = reshape(imwat,512*512,8);
+imnew = reshape(imul,512,512,8);
+imnews = reshape(imuls,100,100,[]);
+% imnew2 = reshape(imwat,512,512,8);
+%%
+for p = 1:8
+    imnew2 = imresize(imnew(:,:,p),[100,100]);
+subplot(1,3,1);imshow(imnew2);
+subplot(1,3,2);imshow(imnews(:,:,p));
+subplot(1,3,3);imagesc(abs(ims(:,:,p)-imnew3));
+pause
+end
+
+%% tune color
+clear im_rawreal im_rawfake fakefeat realfeat fakefeat2 realfeat2 avgtestacc avgtrainacc
+
+myFolder = 'C:\Users\user\Pictures\basler\paper\greenapplereal';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg = dir(filePattern);
+howmanyrealpose = (length(realjPeg)/8/4);
+myFolder = 'C:\Users\user\Pictures\basler\paper\greenapplefake';
+filePattern = fullfile(myFolder, '*.tiff');
+fakejPeg = dir(filePattern);
+howmanyfakepose = (length(fakejPeg)/8/4);
+% fakefeat = zeros(howmanyfakepose,4*8*feat_size);
+% realfeat = zeros(howmanyfakepose,4*8*feat_size);
+fakefeat = [];
+realfeat = [];
+
+for i = 1:length(realjPeg)
+    baseFileName = realjPeg(i).name;
+    fullFileName = fullfile(realjPeg(i).folder, baseFileName);
+    im_rawreal(:,:,i) = imresize((bitshift(imread(fullFileName),-6)),[256,256]); 
+    baseFileName = fakejPeg(i).name;
+    fullFileName = fullfile(fakejPeg(i).folder, baseFileName);
+    im_rawfake(:,:,i) = imresize((bitshift(imread(fullFileName),-6)),[256,256]);
+end
+
+% define a mux matrix
+snrmat = [1,1,1,0,0,1,0,0;
+          0,1,0,0,1,1,1,0;
+          0,0,1,0,1,1,0,1;
+          0,1,1,0,0,0,1,1;
+          1,0,0,1,1,0,1,1;
+          0,1,0,1,0,1,0,1;
+          0,1,1,1,1,0,0,0;
+          0,0,1,1,0,1,1,0];
+% set first color - red
+colormat = eye(4);
+mover = eye(8);
+g= 0;
+% im_sing_illum = uint8(zeros(256,256,8));
+%%
+% change color top
+clear imul;
+for s = 0:howmanyfakepose-1
+for bitt = 1:8
+    colorarr = sum(mover(:,bitt).*snrmat(:,1));
+if colorarr == 1
+    im_sing_illum = im_rawfake(:,:,g*pic+s*8+1:g*pic+8*s+8);
+    imre = reshape(im_sing_illum,im_size*im_size,8);
+    imul(:,g+1) = double(imre)*mover(:,bitt);
+
+    im_sing_illum = im_raw_real(:,:,g*pic+s*8+1:g*pic+8*s+8);
+    imre = reshape(im_sing_illum,im_size*im_size,8);
+    imul = double(imre)*snrmat(:,1);
+    imul = imul./max(imul,[],1);
+    im_mul_illum2 = reshape(imul,im_size,im_size,[]);
+    g = g+1;
+    if g > 3
+        g = 0;
+    end
+end
+end
+
+end
+        % extract feature and sort into [RGBI]
+%         for arr = 1:1
+%             fakesmall = imresize(im_mul_illum(:,:,arr),[im_size/2,im_size/2]);
+% %             imshow(im_mul_illum(:,:,arr));
+%             [featt,~] = extractHOGFeatures(fakesmall,'Cellsize',[4,4],'BlockSize',[6,6]);
+%             fakefeat(s+1,(arr-1)*feat_size+1:arr*feat_size) = featt;
+%            
+%             realsmall = imresize(im_mul_illum2(:,:,arr),[im_size/2,im_size/2]);
+%             [feat,~] = extractHOGFeatures(realsmall,'Cellsize',[4,4],'BlockSize',[6,6]);
+%             realfeat(s+1,(arr-1)*feat_size+1:arr*feat_size) = feat;
+%        end
+%% test noisy image adding
+myFolder = 'C:\Users\user\Pictures\basler\paper\orangefake';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg = dir(filePattern);
+howmanyrealpose = (length(realjPeg)/8/4);
+
+for i = 1:length(realjPeg)
+    baseFileName  = realjPeg(i).name;
+    fullFileName = fullfile(realjPeg(i).folder, baseFileName);
+    im_rawreal(:,:,i) = imread(fullFileName); 
+end
+%%
+ims = sum(im_rawreal(:,:,1:8),3);
+
+
+for array = 1:8
+   if snrmat(array,1)
+       % if current site is on, assign a color
+       % assign red
+       % may be i can load all pose here
+        im_sing_illum = im_sing_illum + raw_real_ga(:,:,array+pic*colorcounter1(array):8:pic*(colorcounter1(array)+1)); %all pose 14
+%         im_sing_illum2 = raw_real_ga(:,:,array:8:pic);
+% check if we assign this site to this permanent color
+        % how to hold a color, multiple loop?
+        
+        if nonperma(array)
+            colorcounter1(array) = colorcounter1(array)+1;
+        end
+        %reset overflow
+        if colorcounter1(array) == 4
+            colorcounter1(array) = 1;
+        end
+   end
+end
+%%
+
+% subplot(2,8,o);
+% imagesc(im_rawreal(:,:,56+o));
+% subplot(2,8,17-o);
+% imagesc(flip(im_rawreal(:,:,56+o),2));
+pos = [7,8,5,6,3,4,1,2];
+for o = 1:8
+red1(:,:,o) = flip(im_rawreal(:,:,128+pos(o)),2);
+grn1(:,:,o) = flip(im_rawreal(:,:,128+136+pos(o)),2);
+blu1(:,:,o) = flip(im_rawreal(:,:,128+272+pos(o)),2);
+nir1(:,:,o) = flip(im_rawreal(:,:,128+408+pos(o)),2);
+% red1(:,:,o) = im_rawreal(:,:,40+o);
+% grn1(:,:,o) = im_rawreal(:,:,40+136+o);
+% blu1(:,:,o) = im_rawreal(:,:,40+272+o);
+% nir1(:,:,o) = im_rawreal(:,:,40+408+o);
+end
+% imshow()
+%%
+destfolder = 'C:\Users\user\Pictures\basler\paper\orangefake';
+
+for z = 1:8
+namer = ['c1r_p',num2str(pose),'_l',num2str(z),'.tiff'];
+nameg = ['c2g_p',num2str(pose),'_l',num2str(z),'.tiff'];
+nameb = ['c3b_p',num2str(pose),'_l',num2str(z),'.tiff'];
+namei = ['c4i_p',num2str(pose),'_l',num2str(z),'.tiff'];
+
+fullFileName = fullfile(destfolder, namer);
+imwrite(uint16(red1(:,:,z)),fullFileName);
+fullFileName = fullfile(destfolder, nameg);
+imwrite(uint16(grn1(:,:,z)),fullFileName);    
+fullFileName = fullfile(destfolder, nameb);
+imwrite(uint16(blu1(:,:,z)),fullFileName);
+fullFileName = fullfile(destfolder, namei);
+imwrite(uint16(nir1(:,:,z)),fullFileName);
+end
+
+pose = pose + 1;
+%% faker
+% real ga = 56-72 p3, p2, p12, p9, p0, p7
+% fake fa = .. p9, p12, p1, ..p7, p3,..p8
+
+
+%% add noise
+myFolder = 'C:\Users\user\Pictures\basler\paper\orangefake';
+filePattern = fullfile(myFolder, '*.tiff');
+realjPeg = dir(filePattern);
+fullFileName = fullfile(realjPeg(1).folder, realjPeg(1).name);
+im = bitshift(imread(fullFileName),-6); 
+%%
+im_mean = double(im(:));
+%
+gain = 10^(0/20);
+% gained_im = gain*im_mean;
+% gain=0;
+expt = 1/gain;
+% expt = 0;
+% equation
+% im_std = sqrt(im_mean);
+im_std = gain*(sqrt(0.7*expt*im_mean+66));
+%%
+for p = 1:512*512
+    pd = makedist('normal','mu',im_mean(p),'sigma',im_std(p));
+    J(p) = random(pd);
+end
+%%
+% need to implement a threshold detector
+r = normrnd(im_mean,im_std);
+%
+r(r(:)>1022) = 1022;
+r(r(:)<0) = 0;
+imreshape = reshape(im_std,512,512);
+%%
+imnew = addnoise(im,20);
+subplot(1,3,1);
+imshow(double(im)/1022);
+subplot(1,3,2);
+imshow(imnew/1022);
+subplot(1,3,3);
+imagesc(abs(double(im)-imnew));colorbar
+
+
+%%
+im_sing_illum = raw_fake_ga(:,:,8*s+8*count_gaf*col+1 :8*s+8*count_gaf*col+8);
+imre = reshape(im_sing_illum,im_size*im_size,8)./1.37;
+imul = double(imre)*snrmat;
+% imul = imul./max(imul,[],1);
+im_mul_illum1 = reshape(imul,im_size,im_size,[]);
+%%
+imm = im_mul_illum1(:,:,7);
+imm2 = imm;
+imm(imm(:,:)>1022) = 1022;
+subplot(1,2,1)
+imshow(imm/1022);colorbar
+subplot(1,2,2)
+imshow(imm2/1022);colorbar
+%%
+ imshow(imsin2(:,:,1))
+imagesc(imsin2(:,:,2))
+imsin = snrmat'\imm';
+imshow(imsin2(:,:,1))
+imagesc(imsin2(:,:,2))
+imsin = snrmat\imm';
+imsin = snrmat'\imm';
+imsin2 = reshape(imsin,512,512,8);
+imagesc(imsin2(:,:,2))
+imm = reshape(im_mul_illum1,8,im_size*im_size);
+imsin = snrmat'\imm';
+
+%%
+mis = zeros(50,1);
+mis2 = zeros(10,1);
+for row = 1:50
+    ahh = allinds2(row,allinds2(row,:) > 0);
+    mis(row,1:length(unique(ahh))) = unique(ahh);
+end
+
+for row = 0:9
+    mis2(row+1,:) = unique(mis(1+row*5:5*row+5,:),'row');
+
+end

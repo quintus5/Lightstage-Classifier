@@ -23,3 +23,4 @@ end
 %% pca
 [coeff, score, latent, tsquared, explained] = pca(feat');
 
+%%

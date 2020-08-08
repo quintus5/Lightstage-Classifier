@@ -96,48 +96,59 @@ im_size = 512;
 smsiz = 120; % imresize size
 celsiz = 12;
 blksiz = 10;
-dimmer = 0.45;
-gain = 15;
+dimmer = 0.45;  
+gain = 17.5;
 [feat,viz] = extractHOGFeatures(zeros(smsiz,smsiz),'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
 fs = length(feat); % feature vector size
 bestacc = 0;
 bestmat2 = [];
 %%
-for matcol = 8:10
+for matcol = 3
 %     multiplier = size(bestmat2,1)+1;
 bestacc = 0;
-if matcol == 8
-    num = 3;
-else
-    num = 1;
-end
-for pattype = num:5
+for pattype = 2:5
 mat = ledtype{pattype};  
 fprintf('%d %d\n', matcol, pattype);
 tic; % record time
-if matcol == 8 && num == 3
-    num2 = 40;
-else
-    num2 = 2;
-end
-for pattern = num2:2:patvar(pattype)-1
-%     tic;
-%     snrmat = [0 0 1 0 0 1 1 0;0 0 0 1 0 1 0 0;
-%               0 0 0 0 1 0 0 1;0 0 1 1 1 0 0 1;
-%               0 0 1 1 0 1 1 0;0 0 0 1 0 1 0 0;
-%               0 0 1 0 1 1 0 0]'; % get the column
-snrmat = bestmat2(1:5,:)';
-%     snrmat = mat(pattern,:)';
-%     snrmat = [bestmat2;0 1 1 1 1 0 1 1]';
+for pattern = 2:patvar(pattype)-2
+%     if randi(3) == 2
+%         continue;
+%     end
 % snrmat = [bestmat2;mat(pattern,:)]';
-% snrmat = [1,1,1,0,0,1,0,0;
-%           0,1,0,0,1,1,1,0;
-%           0,0,1,0,1,1,0,1;
-%           0,1,1,0,0,0,1,1;
-%           1,0,0,1,1,0,1,1;
-%           0,1,0,1,0,1,0,1;
-%           0,1,1,1,1,0,0,0;
-%           0,0,1,1,0,1,1,0];
+% snrmat = [1,0,1,1,0,1,1,0;
+%           0,1,0,0,0,0,0,1;
+%           1,0,0,1,1,1,1,0;
+%           1,0,0,1,0,1,0,0;
+%           1,1,1,1,1,1,1,0;
+%           1,0,0,0,1,0,1,1;
+%           0,0,1,1,0,0,1,0;
+%           1,1,1,1,0,1,1,1];
+% snrmat = snrmat(:,1:8);
+% snrmat = [1,1,1,1,1,1,1,0;
+%           0,1,1,0,0,1,0,0;
+%           1,0,1,1,0,0,0,1;
+%           0,1,0,1,1,0,0,1;
+%           1,0,0,0,1,1,0,1;
+%           1,1,0,0,0,0,1,1;
+%           0,0,1,0,1,0,1,0;
+%           0,0,0,1,0,1,1,0]; gain 12
+% snrmat = bestmat2';
+% snrmat = [0,1,1,0,0,1,1,1;
+%           0,1,1,1,1,0,0,1;
+%           1,0,1,1,0,1,0,1;
+%           1,1,1,0,1,1,1,0;
+%           1,1,0,1,0,0,1,1;
+%           0,0,1,1,0,0,1,0;
+%           0,0,0,1,1,1,1,1;
+%           0,1,0,1,0,1,0,0]; % gain 6
+snrmat = [1,1,1,0,0,1,0,0;
+          0,1,0,0,1,1,1,0;
+          0,0,1,0,1,1,0,1;
+          0,1,1,0,0,0,1,1;
+          1,0,0,1,1,0,1,1;
+          0,1,0,1,0,1,0,1;
+          0,1,1,1,1,0,0,0;
+          0,0,1,1,0,1,1,0];
 multiplier = size(snrmat,2);
 % preallocating feature array
 feat_real_ga = zeros(count_gaf,fs*4*multiplier+1);
@@ -165,12 +176,12 @@ for col = 0:3 % color
 
         % extract feature and sort into [RGBI]
         for arr = 1:multiplier
-            realsmall = imresize(addnoise(im_mul_r(:,:,arr),gain),[smsiz,smsiz]);
+            realsmall = imresize(addnoise(im_mul_r(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,1);imshow(realsmall/1022);pause(0.01);
             [feat,viz] = extractHOGFeatures(realsmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_real_ga(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
 
-            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),gain),[smsiz,smsiz]);
+            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,6);imshow(fakesmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(fakesmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_fake_ga(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
@@ -187,12 +198,12 @@ for col = 0:3 % color
         im_mul_f = reshape(imul,im_size,im_size,[]);
         
         for arr = 1:multiplier
-            realsmall = imresize(addnoise(im_mul_r(:,:,arr),gain),[smsiz,smsiz]);
+            realsmall = imresize(addnoise(im_mul_r(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,2);imshow(realsmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(realsmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_real_ra(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
 
-            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),gain),[smsiz,smsiz]);
+            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,7);imshow(fakesmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(fakesmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_fake_ra(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
@@ -209,12 +220,12 @@ for col = 0:3 % color
         im_mul_f = reshape(imul,im_size,im_size,[]);
         
         for arr = 1:multiplier
-            realsmall = imresize(addnoise(im_mul_r(:,:,arr),gain),[smsiz,smsiz]);
+            realsmall = imresize(addnoise(im_mul_r(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,3);imshow(realsmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(realsmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_real_gg(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat; 
             
-            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),gain),[smsiz,smsiz]);
+            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,8);imshow(fakesmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(fakesmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_fake_gg(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
@@ -231,12 +242,12 @@ for col = 0:3 % color
         im_mul_f = reshape(imul,im_size,im_size,[]);
         
         for arr = 1:multiplier
-            realsmall = imresize(addnoise(im_mul_r(:,:,arr),gain),[smsiz,smsiz]);
+            realsmall = imresize(addnoise(im_mul_r(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,4);imshow(realsmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(realsmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_real_or(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat; 
             
-            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),gain),[smsiz,smsiz]);
+            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,9);imshow(fakesmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(fakesmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_fake_or(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
@@ -255,12 +266,12 @@ for col = 0:3 % color
         im_mul_f = reshape(imul,800,800,[]);
         
         for arr = 1:multiplier
-            realsmall = imresize(addnoise(im_mul_r(:,:,arr),gain),[smsiz,smsiz]);
+            realsmall = imresize(addnoise(im_mul_r(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,5);imshow(realsmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(realsmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_real_bn(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;  %
 
-            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),gain),[smsiz,smsiz]);
+            fakesmall = imresize(addnoise(im_mul_f(:,:,arr),'g',gain),[smsiz,smsiz]);
 %             subplot(2,5,10);imshow(fakesmall/1022);pause(0.01);
             [feat,~] = extractHOGFeatures(fakesmall,'Cellsize',[celsiz,celsiz],'BlockSize',[blksiz,blksiz]);
             feat_fake_bn(s+1,col*fs*multiplier+(arr-1)*fs+1:col*fs*multiplier+(arr-1)*fs+fs) = feat;
@@ -280,9 +291,8 @@ feat_real_or(:,end) = 9;
 %
 % extractor();
 %% classification
-true_label = [];pred_label = [];allinds = [];clear avgtestacc;
+true_label = [];pred_label = [];allinds = [];avgtestacc = 0;
 figure;hold on;
-
 for epoch = 1:2000
 % training feature vector
 % trainfeature1 = [feat_real_ga;feat_fake_ga;
@@ -320,19 +330,19 @@ testfeature = [feat_real_ga(testinds1,:);feat_fake_ga(testinds1,:);
 testlabel = testfeature(:,end);
 testfeature = testfeature(:,1:end-1);
 
-% true_label = [true_label;testlabel];
+true_label = [true_label;testlabel];
 %%
 model = fitcecoc(trainfeature,trainlabel,'Coding','onevsall');
 % predict the testing set
 [label,score] = predict(model,testfeature);
-% pred_label = [pred_label;label]; % make confusion mat with it
+pred_label = [pred_label;label]; % make confusion mat with it
 % allinds(:,epoch) = repmat(testinds1,1,10)'; % collect all mismatched image
 % allinds(:,epoch) = testinds1;
 % mismatch = testlabel ~= label;
 % allinds2(:,epoch) = allinds(:,epoch).*mismatch;
 avgtestacc(epoch) = sum(testlabel == label)/length(label);
-plot(epoch,mean(avgtestacc),'b.');
-plot(epoch,median(avgtestacc),'r.');
+plot(epoch,mean(avgtestacc),'m.');
+% plot(epoch,median(avgtestacc),'r.');
 pause(0.00001);
 end 
 % do a stochastic descend
@@ -351,6 +361,7 @@ bestmat2 = bestmat';
 end
 %%
 % making conf mat
+figure
 cm = confusionmat(pred_label,true_label);
 lab = {'fake greenapple';'real greenapple';
        'fake redapple';'real redapple';

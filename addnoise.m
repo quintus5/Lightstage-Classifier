@@ -24,7 +24,7 @@ elseif type == 'e'
         return;
     end
     expt = value;
-    gain = 1/expt;      
+    gain = 1/expt*0.45;      
     im_std = gain*(sqrt((0.1245*expt*im_mean)+2.087)); % at 0dB gain
 end
 

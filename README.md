@@ -5,17 +5,19 @@ Copyright (c) 2020 Taihua Wang
 This toolbox is associated with the paper "Multiplexed illumination for classifying visually similar objects"
 The toolbox includes functions need for optimising lighting patterns for optimum classification result. 
 
-For associated datasets, visit: [https://sample.com]
-
+For associated datasets, visit: [here](https://google.com)
+For associated work, visit: [here](https://google.com)
 ## Function list
 
-PatterSelection.m includes training loop for optimizing multiplexing patterns.
+*PatterSelection.m* includes training loop for optimizing multiplexing patterns.
 
-FeatExtract.m sort extracted feature from multiplexed image
+*FeatExtract.m* sort extracted feature from multiplexed image.
 
-ImageLoader.m loads images and convert to 10bit format.
+*ImageLoader.m* loads images and convert to 10bit format.
 
-Column_permutation.m creates a struct containing every possible permutation of input vector
+*Column_permutation.m* creates a struct containing every possible permutation of input vector.
+
+*addnoise.m* adds artificial noise to the image based on simulated camera settings.
 
 ## Compatibility
 

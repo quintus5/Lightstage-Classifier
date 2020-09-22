@@ -1,7 +1,19 @@
 function feature = FeatExtract(MUXMAT,Raw,NPose,NColor,NMsnt,N,Gain,Dimmer)
-%feature = FeatExtract(MUXMAT,Raw,NPose,NColor,NMsnt,N,Gain,Dimmer) returns
-%a struct containing feature vector of all categories extracted from
-%multiplexed images. The features are sorted in [RGB-NIR] order.
+%FEATEXTRACT returns a struct containing feature vector of all categories extracted from
+% multiplexed images. The features are sorted in [RGB-NIR] order.
+% Inputs: 
+%     'MUXMAT'    - NxM multiplexing matrix
+%     'Raw'       - raw 10 bit image files, struct
+%     'NPose'     - number of pose in the dataset, int
+%     'NColor'    - number of illumination bands in the dataset, int
+%     'NMsnt'     - number of total acquisition M in the dataset, int
+%     'N'         - number of required acquisition m, int
+%     'Gain'      - artificial noise gain in dB, double
+%     'Dimmer'    - scale to prevent saturation, double
+% Outputs:
+%     'feature'   - sorted feature vector, struct
+%     
+% Copyright 2020 Taihua Wang
 
 % preallocating feature array
 Feat.real_ga = zeros(NPose,FeatSize*NColor*N+1);

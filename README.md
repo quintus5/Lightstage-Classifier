@@ -7,12 +7,15 @@ The toolbox includes functions need for optimising lighting patterns for optimum
 
 For associated datasets, visit: [https://sample.com]
 
+## Function list
+
 PatterSelection.m includes training loop for optimizing multiplexing patterns.
 
 FeatExtract.m sort extracted feature from multiplexed image
 
-## Function list
+ImageLoader.m loads images and convert to 10bit format.
 
+Column_permutation.m creates a struct containing every possible permutation of input vector
 
 ## Compatibility
 
@@ -27,7 +30,7 @@ For enquiries, please email twan8752 {at} uni dot sydney dot edu dot au
 Credit to MATLAB team for build-in functions
 
 ## Citing
-The appropriate citations for decoding, calibration and rectification and the volumetric focus (hyperfan) filter are:
+The appropriate citation is:
 
 <pre>@article{wang2020multiplexed,
   title={Multiplexed Illumination for Classifying Visually Similar Objects},

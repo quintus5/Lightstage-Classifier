@@ -1,4 +1,4 @@
-function J = addnoise(I,type,value)
+function J = addnoise(I,type,value,dim)
 %ADDNOISE(I, type, value) add poisson and read noise to image
 %   I should be 10 bit image 0~1023
 %   type specify operating with gain or exposure time
@@ -8,16 +8,13 @@ function J = addnoise(I,type,value)
 % image stats
 im_mean = double(I(:));
 imsiz = size(I);
-dimmer = 20*log10(1);
+dimmer = 20*log10(dim);
 if type == 'g'
     gain = 10^((value-15)/20);
     expt = 1/gain;
     gain = 10^((value+dimmer-15)/20); % dimmer only affects gain
     im_std = gain*(sqrt(0.7*expt*im_mean+66)); % at 15dB gain
-%     gain = 10^(value/20);
-%     expt = 1/gain;
-%     gain = 10^((value+dimmer)/20); % account for image saturation
-%     im_std = gain*(sqrt((0.1245*expt*im_mean)+2.08)); % at 0dB gain
+
 elseif type == 'e'
     if value == 0
         fprintf('exposure zero');

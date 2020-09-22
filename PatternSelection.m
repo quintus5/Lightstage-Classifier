@@ -1,4 +1,4 @@
-% ImageLoader();
+ImageLoader();
 %% =============System Config===================
 LightingPattern = Column_Permutation(8); % derive all permutation   
 Dimmer = 0.45;          % Prevent multiplexing saturation

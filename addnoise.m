@@ -2,17 +2,31 @@ function J = addnoise(I,type,value,dim)
 %ADDNOISE(I, type, value) add poisson and read noise to image
 % 
 % Inpuuts:
-%     'I'         - 10bit image
-%     'type'      - 'g' or 'e' to selection which parameter to operate on, char
-%     'value'     - camera settings for 'type'
+%     'I'         - 10bit image,double
+%     'type'      - camera parameter to operate on, 'g' for gain, 'e' for
+%                   exposure time.
+%     'value'     - numerical camera settings for 'type'
 %     'dim'       - scale to prevent over saturation from multiplexing
 %     
 % Output:
-%     'J'         - image with artificial noise
+%     'J'         - 10bit image with artificial noise,double
 %
 % Note:
-%   gain should be db version of gain, e.g. 6 = 2x
-%   expt is multiple of base exposure time, e.g. 0.5,0.4,0.3...
+%   - This function mimics noise based off calibration on Basler
+%     acA1920-150um camera
+%   - The base calibration was done on 15dB gain 30ms setting.
+%   - gain should be dB version of gain, e.g. 6dB = 2x, 12dB = 4x
+%   - exposure time is relative to base exposure time, e.g. 0.5,0.4,0.3...
+%   - For equivalent brightness, gain = 1/exposure
+%
+% Example:
+%   J = addnoise(I, 'g', 11, 1);
+%   add normal distributed noise with gain 11dB(2.5x), 0.28x exposure to image I,
+%   without brightness scaling.
+%
+%   J = addnoise(I, 'e', 0.1, 0.5);
+%   add normal distributed noise with exposure 0.1x of input image, 10x gain, 
+%   with additinal 0.5x brightness scaling.
 %
 % Copyright 2020 Taihua Wang
 

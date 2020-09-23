@@ -5,8 +5,8 @@ Copyright (c) 2020 Taihua Wang
 This source code is associated with the paper "Multiplexed illumination for classifying visually similar objects". 
 It includes functions needed for optimising multipelxed lighting patterns for optimum classification result. 
 
-For associated datasets, visit: [here](https://google.com)
-For associated work, visit: [here](https://google.com)
+For associated work and datasets, visit: [here](https://roboticimaging.org/Projects/LSClassifier/)
+
 ## Function list
 
 *PatterSelection.m* includes training loop for optimizing multiplexing patterns.

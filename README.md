@@ -1,4 +1,4 @@
-# Lightstage Classifier Toolbox for MATLAB
+# Lightstage Classifier Source code for MATLAB
 
 Copyright (c) 2020 Taihua Wang
 
@@ -33,8 +33,10 @@ Credit to [D.G.Dansereau](https://dgd.vision/) for supervising this project.
 
 ## Citing
 Please cite the following article if you find this source code useful:
+
 NOTE: to be changed.
-'''bibtex
+
+```bibtex
 @article{wang2020multiplexed,
   title={Multiplexed Illumination for Classifying Visually Similar Objects},
   author={Taihua Wang and Donald G. Dansereau},
@@ -42,6 +44,6 @@ NOTE: to be changed.
   year={2020},
   publisher={Elsevier}
 }
-'''
+
 
 

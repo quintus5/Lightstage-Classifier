@@ -34,16 +34,15 @@ Credit to [D.G.Dansereau](https://dgd.vision/) for supervising this project.
 ## Citing
 Please cite the following article if you find this source code useful:
 
-NOTE: to be changed.
-
 ```bibtex
-@article{wang2020multiplexed,
-  title={Multiplexed Illumination for Classifying Visually Similar Objects},
-  author={Taihua Wang and Donald G. Dansereau},
-  journal={under review, Computer Vision and Image Understanding ({CVIU})},
-  year={2020},
-  publisher={Elsevier}
+@article{wang2020multiplexed_arxiv,
+  title = {Multiplexed Illumination for Classifying Visually Similar Objects},
+  author = {Taihua Wang and Donald G. Dansereau},
+  journal = {arXiv preprint arXiv:2009.11084},
+  year = {2020},
+  month = sep
 }
+
 
 
 

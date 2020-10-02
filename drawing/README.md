@@ -6,9 +6,9 @@ The technical drawings associate with the Light Stage prototype.
 
 ## File list
 
-..* 3D model of the light stage in both SolidWorks assembly and STL format.
+* 3D model of the light stage in both SolidWorks assembly and STL format.
 
-..* Electrical connection of lighting units.
+* Electrical connection of lighting units.
 
 ## Compatibility
 

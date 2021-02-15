@@ -29,7 +29,7 @@ For associated work and datasets, visit: [here](https://roboticimaging.org/Proje
 For enquiries, please email twan8752 {at} uni dot sydney dot edu dot au
 
 ## Acknowledgements
-Credit to [D.G.Dansereau](https://dgd.vision/) for supervising this project.
+Credit to D.G.Dansereau at [Robotic Imaging at the University of Sydney](https://roboticimaging.org/) for supervising this project.
 
 ## Citing
 Please cite the following article if you find this source code useful:
